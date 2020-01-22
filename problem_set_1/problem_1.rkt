@@ -24,6 +24,16 @@
 (test-equal (term (num-atomics ,m2)) 1)
 (test-equal (term (num-atomics ,m3)) 3)
 
+;; total-weight
+(define-metafunction mobile
+  total-weight : m -> natural
+  [(total-weight w) w]
+  [(total-weight (m_1 m_2 w)) ,(+ (+ (term (total-weight m_1)) (term (total-weight m_2))) (term w))])
+
+(test-equal (term (total-weight ,m1)) 3)
+(test-equal (term (total-weight ,m2)) 4)
+(test-equal (term (total-weight ,m3)) 12)
+
 ;; receives a mobile and returns a boolean to represent whether the weight of all
 ;; components on the left side are equal to the right side.
 

@@ -10,6 +10,7 @@
 (define m2 (term 4))
 (define m3 (term (,m1 ,m2 5)))
 (define m4 (term (,m1 ,m3 7)))
+(define m5 (term (,m3 ,m3 1)))
 
 (test-equal (redex-match? mobile m (term 3)) #t)
 (test-equal (redex-match? mobile m (term (,m1 ,m2 5))) #t)
@@ -30,7 +31,8 @@
 (define-metafunction mobile
   total-weight : m -> natural
   [(total-weight w) w]
-  [(total-weight (m_1 m_2 w)) ,(+ (+ (term (total-weight m_1)) (term (total-weight m_2))) (term w))])
+  [(total-weight (m_1 m_2 w))
+   ,(+ (+ (term (total-weight m_1)) (term (total-weight m_2))) (term w))])
 
 (test-equal (term (total-weight ,m1)) 3)
 (test-equal (term (total-weight ,m2)) 4)
@@ -48,11 +50,25 @@
 (test-equal (term (depth ,m3)) 2)
 (test-equal (term (depth ,m4)) 3)
 
-;; replace
+;; replace. The way we are reading this is that if a mobile has a total weight
+#;(define-metafunction mobile
+  replace: m n 
+  [])
 
 
-;; balanced?
+;; balanced? We are not checking if all mobiles are balanced. Only the root
+;; mobile based on the phrasing of the problem.
+(define-metafunction mobile
+  balanced? : m -> boolean
+  [(balanced? w) #t]
+  [(balanced? (m_1 m_2 w)) ,(eqv? (term (total-weight m_1)) (term (total-weight m_2)))])
 
+
+(test-equal (term (balanced? ,m1)) #t)
+(test-equal (term (balanced? ,m2)) #t)
+(test-equal (term (balanced? ,m3)) #f)
+(test-equal (term (balanced? ,m4)) #f)
+(test-equal (term (balanced? ,m5)) #t)
 
 ;; run tests
 (test-results)

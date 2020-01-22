@@ -9,6 +9,7 @@
 (define m1 (term 3))
 (define m2 (term 4))
 (define m3 (term (,m1 ,m2 5)))
+(define m4 (term (,m1 ,m3 7)))
 
 (test-equal (redex-match? mobile m (term 3)) #t)
 (test-equal (redex-match? mobile m (term (,m1 ,m2 5))) #t)
@@ -23,6 +24,7 @@
 (test-equal (term (num-atomics ,m1)) 1)
 (test-equal (term (num-atomics ,m2)) 1)
 (test-equal (term (num-atomics ,m3)) 3)
+(test-equal (term (num-atomics ,m4)) 5)
 
 ;; total-weight
 (define-metafunction mobile
@@ -33,13 +35,24 @@
 (test-equal (term (total-weight ,m1)) 3)
 (test-equal (term (total-weight ,m2)) 4)
 (test-equal (term (total-weight ,m3)) 12)
+(test-equal (term (total-weight ,m4)) 22)
 
-;; receives a mobile and returns a boolean to represent whether the weight of all
-;; components on the left side are equal to the right side.
+;; depth
+(define-metafunction mobile
+  depth : m -> natural
+  [(depth w) 1]
+  [(depth (m_1 m_2 w)) ,(+ 1 (max (term (depth m_1)) (term (depth m_2))))])
+
+(test-equal (term (depth ,m1)) 1)
+(test-equal (term (depth ,m2)) 1)
+(test-equal (term (depth ,m3)) 2)
+(test-equal (term (depth ,m4)) 3)
+
+;; replace
 
 
-;; (test-equal mobile (term (balanced? )))
+;; balanced?
 
 
-
+;; run tests
 (test-results)

@@ -16,14 +16,18 @@
 (test-equal (redex-match? Graph g g2) #t)
 
 ;; TODO: fix language
-;; TODO: add citation note
-(define-metafunction Lambda
-  in : x (x ...) -> boolean
-  [(in x (x_1 ... x x_2 ...)) #t]
-  [(in x (x_1 ... ) ) #f])
+;; based off of in function from tutorial I did: https://docs.racket-lang.org/redex/redex2015.html
+#;(define-metafunction Graph
+  in : x (e ...) -> boolean
+  [(in x (edge x_1 x_2) ... (edge x x_3 x_4) ...) #t]
+  [(in x (edge x_1 x_2) ... (edge x_3 x x_4) ...) #t]
+  [(in x (e_1 ... ) ) #f])
 
-;(test-equal (term (in x (x y z))) #t)
-;(test-equal (term (in x (y z))) #f)
+(define-metafunction Graph
+  contains-node : x (e ...) -> boolean
+  [(contains-node x ()) #f]
+  [(contains-node x (e ...)]
+
 
 ;; Design the function good, which determines whether or not the edges in a Graph
 ;; g mention only names that also name a node in g. We changed it to good? since
@@ -38,3 +42,6 @@
 
 ;; run tests
 (test-results)
+
+
+

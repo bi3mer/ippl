@@ -73,7 +73,6 @@
 
 (define mr6 (term 7))
 (define mr7 (term (,mr3 ,mr6 7)))
- 
 
 (test-equal (term (replace ,m1 3 2)) 2)
 (test-equal (term (replace ,m2 10 2)) 4)

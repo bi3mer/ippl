@@ -15,20 +15,34 @@
 
 (define-metafunction dblanguage
   updatevarscope : d v_replacearg d_scope -> d
+  [(updatevarscope v v_replacearg d_scope)
+   ,(cond
+     [(eqv? (term v) (term v_replacearg)) (term d_scope)]
+     [else (term v)])]
   [(updatevarscope (function v_arg v_2) v_replacearg d_scope)
    ,(cond
      [(eqv? (term v_arg) (term v_replacearg))
       (cond
         [(eqv? (term d_scope) 0) (term (function v_arg d_scope))]
         [else (term (function v_arg v_2))])]
-     [(eqv? (term v_2) (term v_replacearg)) (term (function v_arg d_scope))])])
+     [(eqv? (term v_2) (term v_replacearg)) (term (function v_arg d_scope))]
+     [else (term (function v_arg v_2))])]
+  [(updatevarscope (d_1 d_2) v_replace_arg d_scope)
+   ,(term ((updatevarscope d_1 v_replace_arg d_scope) (updatevarscope d_2 v_replace_arg d_scope)))]
+  [(updatevarscope (function v_arg d) v_replacearg d_scope)
+   ,(cond
+      [(eqv? (term v_arg) (term v_replacearg)) (term (function v_arg d))]
+      [else (term (function v_arg (updatevarscope d v_replacearg ,(+ 1 (term d_scope)))))])])
 
-;; todo: I need my else case with recursion and combining the results
-;; todo: condition for (d d)
+;; todo: need last case of function with v_arg and d statement
 
+(test-equal (term (updatevarscope "x" "x" 1)) 1)
 (test-equal (term (updatevarscope (function "x" "x") "x" 0)) (term (function "x" 0)))
+(test-equal (term (updatevarscope (function "x" "x") "x" 2)) (term (function "x" "x")))
 (test-equal (term (updatevarscope (function "x" "y") "y" 1)) (term (function "x" 1)))
-;(test-equal (term (updatevarscope (function "x" (function "y" "z")) "z" 2)) (term (function "x" (function "y" "3") "z" 2)))
+(test-equal (term (updatevarscope (function "x" "z") "y" 2)) (term (function "x" "z")))
+(test-equal (term (updatevarscope (("x" "x") ("y" "x")) "y" 1)) (term (("x" "x") (1 "x"))))
+(test-equal (term (updatevarscope (function "x" (function "y" "z")) "z" 2)) (term (function "x" (function "y" 3))))
 
 #;(define-metafunction dblanguage
   db : d -> d

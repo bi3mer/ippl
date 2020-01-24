@@ -19,11 +19,6 @@
 (test-equal (redex-match? Graph g g2) #t)
 
 
-
-(define (slist->string slst)
-  (string-join (map symbol->string slst) " "))
-
-
 (define-metafunction Graph
   nodes : g -> (n ...)
   [(nodes (graph e ...)) ()]
@@ -59,6 +54,8 @@
 ;; it returns a boolean.
 (define-metafunction Graph
   good? : g -> boolean
+  [(good? (graph)) #t]
+  [(good? (graph n ...)) #t]
   [(good? (graph n ... e ...)) ,(set=? (list->set(term (nodesplit(nodes (graph n ... e ...))))) (list->set(term (edgesplit(edges (graph n ... e ...))))))])
 
 

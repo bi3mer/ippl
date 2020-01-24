@@ -7,10 +7,19 @@
   (e (edge x x))
   (x variable-not-otherwise-mentioned))
 
+
+(define-language Node
+  (g (n ...))
+  (n (node x))
+  (x variable-not-otherwise-mentioned))
+
 (define g1 (term (graph (node a) (node b) (node c)
                         (edge b a) (edge b c))))
 (define g2 (term (graph (node a) (node b)
                         (edge b a) (edge b c))))
+
+
+;;(redex-match Node g g1)
 
 (test-equal (redex-match? Graph g g1) #t)
 (test-equal (redex-match? Graph g g2) #t)
@@ -23,11 +32,26 @@
   [(in x (edge x_1 x_2) ... (edge x_3 x x_4) ...) #t]
   [(in x (e_1 ... ) ) #f])
 
-(define-metafunction Graph
+#;(define-metafunction Graph
   contains-node : x (e ...) -> boolean
   [(contains-node x ()) #f]
-  [(contains-node x (e ...)]
+  [(contains-node x (e ...))])
 
+
+(define (slist->string slst)
+  (string-join (map symbol->string slst) " "))
+
+
+(define-metafunction Graph
+  nodes : g -> String
+  [(nodes (graph n ... e ...)) ,(slist->string (term(n ...)))])
+
+;;(regexp-replace* #rx"node *" "(node a) (node b) (node c)" "")
+;;  [(nodes (graph n ... e ...)) ,(regexp-replace* #rx"node *" slist->string(term(n ...)) "")])
+
+
+(term (nodes ,g1))
+;;(redex-match Node g (term (nodes ,g1)))
 
 ;; Design the function good, which determines whether or not the edges in a Graph
 ;; g mention only names that also name a node in g. We changed it to good? since

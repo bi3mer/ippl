@@ -56,7 +56,7 @@
   good? : g -> boolean
   [(good? (graph)) #t]
   [(good? (graph n ...)) #t]
-  [(good? (graph n ... e ...)) ,(set=? (list->set(term (nodesplit(nodes (graph n ... e ...))))) (list->set(term (edgesplit(edges (graph n ... e ...))))))])
+  [(good? (graph n ... e ...)) ,(subset? (list->set(term (edgesplit(edges (graph n ... e ...))))) (list->set(term (nodesplit(nodes (graph n ... e ...))))))])
 
 
 (test-equal (term (good? ,g1)) #t)

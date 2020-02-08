@@ -2,46 +2,25 @@
 (require redex)
 
 
-;; Part A
+;; Part A: Lam with call-by-value operational semantics
+;;
+;; Looking through the redex documentation I saw that they had this alternative
+;; whre they used v to describe lambda and I think that makes a lot more sense and
+;; will likely lead to a cleaner reduction relation later on.
 (define-language Lam
-  (e ::= x (lambda x e) (e e))
-  (C ::= hole  (C e) (x C)))
+  (e ::= v (e e) x)
+  (v ::= (lambda (x) e))
+  (x ::= variable-not-otherwise-mentioned)
+  (C ::= (V (C e) (v C) (x C) hole))
+  (V ::= (lambda (x) C)))
 
-#;(define Lam-reduction
-  (reduction-relation
-   Lam
-   (--> (in-hole C ()))))
+(test-equal (redex-match? Lam x (term a)) #t)
+(test-equal (redex-match? Lam e (term a)) #t)
+(test-equal (redex-match? Lam v (term (lambda (x) x))) #t)
+(test-equal (redex-match? Lam e (term (lambda (x) x))) #t)
+(test-equal (redex-match? Lam (e_1 e_2) (term ((lambda (x) x) z))) #t)
 
-
-#;(define bool-red     ;; alternative definition, using E
-  (reduction-relation
-   bool-or
-   (--> (in-hole E (f or e))
-        (in-hole E e)
-        or-false)
-   (--> (in-hole E (t or e))
-        (in-hole E t)
-        or-true)))
+;; Part B: LamBool with call-by-value reduction relation
 
 
-
-;; Part B
-(define-language LamBool
-  (e ::= x (lambda x e) (e e) true false (if e then e else e)))
-
-#;(define RLAM
-  (reduction-relation ST)
-  
-  )
-
-;; Part C
-;; View README.txt for explanation
-;(define-union-language ST (s. LamBool) (t. Lam))
-(define-union-language ST LamBool Lam)
-
-
-#;(define-metafunction ST
-  translate : e -> e
-  [(translate (if true then e_2 else e_3)) e_2]
-  [(translate (if false then e_2 else e_3)) e_3]
-  [(translate e) e])
+(test-results)

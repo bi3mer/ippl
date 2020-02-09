@@ -1,8 +1,8 @@
 #lang racket
 (require redex)
 
-
-;; Part A: Lam with call-by-value operational semantics
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Part A ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Lam with call-by-value operational semantics
 ;; used https://summer-school.racket-lang.org/2017/notes/mon-mor.html as a resource
 ;; to figure out how to get lambda (x) e to have some kind of scope for x.
 (define-language Lam
@@ -18,11 +18,14 @@
 (test-equal (redex-match? Lam e (term a)) #t)
 (test-equal (redex-match? Lam e (term (lambda (x) x))) #t)
 (test-equal (redex-match? Lam (e_1 e_2) (term ((lambda (x) x) z))) #t)
+(test-results)
 
-(term (substitute (term (lambda (x) y)) y x))
-(term (substitute (term (lambda (z) y)) y x))
+;(term (substitute (term (lambda (x) y)) y x))
+;(term (substitute (term (lambda (z) y)) y x))
 
-;; Part B: LamBool with call-by-value reduction relation
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Part B ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; LamBool with call-by-value reduction relation. Used bool reduction and the sit
+;; mentioned before as reference for implementation
 (define-language LamBool
   (e ::= v (e e) (lambda (x) e) x true false (if e_1 then e_2 else e_3))
   (x ::= variable-not-otherwise-mentioned)
@@ -44,7 +47,6 @@
 (test-equal (redex-match? LamBool e (term (lambda (x) x))) #t)
 (test-equal (redex-match? LamBool (e_1 e_2) (term ((lambda (x) x) z))) #t)
 (test-equal (redex-match? LamBool e (term (if true then (lambda (x) x) else (lambda (y) x)))) #t)
-
 
 (define LamBool-Reduction
   (reduction-relation
@@ -68,7 +70,7 @@
  (apply-reduction-relation LamBool-Reduction (term (if true then true else false)))
  (term (true)))
 
-;; test if false false works
+;; test if false works
 (test-equal
  (apply-reduction-relation LamBool-Reduction (term (if false then true else false)))
  (term (false)))
@@ -76,19 +78,49 @@
 ;; test if reduction in if clause works
 (test-equal
  (apply-reduction-relation* LamBool-Reduction (term (if ((lambda (x) x) false) then true else false)))
- (term (false))) 
+ (term (false)))
 
-;; TODO: relation for if else
+;; test if reduction in then clause works
+(test-equal
+ (apply-reduction-relation* LamBool-Reduction (term (if true then ((lambda (x) x) false) else false)))
+ (term (false)))
 
-#;(define bool-red     ;; alternative definition, using E
-  (reduction-relation
-   bool-or
-   (--> (in-hole E (f or e))
-        (in-hole E e)
-        or-false)
-   (--> (in-hole E (t or e))
-        (in-hole E t)
-        or-true)))
-
-
+;; test if reduction in else clause works
+(test-equal
+ (apply-reduction-relation* LamBool-Reduction (term (if false then ((lambda (x) x) false) else ((lambda (x) x) true))))
+ (term (true)))
 (test-results)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Part C ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; My assumption with this is that the translate function shouldn't actually
+; evaluate since that wouldn't make any sense. However, if there is a case where
+; it can easily simplify, then it will. The only example of this here is in the
+; case where it is if true or if false. Past that it simply looks for cases
+; where Lam can't express the same thing and it modifies it, such as false goes
+; to true.
+
+(define-union-language ST LamBool Lam)
+
+(define-metafunction ST
+  translate : e -> e
+  [(translate true) e]
+  [(translate false) e]
+  [(translate (if true then e_1 else e_2)) (translate e_1)]
+  [(translate (if false then e_1 else e_2)) (translate e_2)]
+  [(translate (lambda (x) e)) (lambda (x) (translate e))]
+  [(translate (e_1 e_2)) ((translate e_1) (translate e_2))]
+  [(translate x) x])
+
+(default-language ST)
+(define e_answer (term e))
+(define e_answer_2 (term ((lambda (x) x) e)))
+
+(default-language LamBool)
+
+(test-equal (term (translate false)) e_answer)
+(test-equal (term (translate true)) e_answer)
+(test-equal (term (translate (if false then ((lambda (x) x) false) else ((lambda (x) x) true)))) e_answer_2)
+(test-results)
+
+ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Part D ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+

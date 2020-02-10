@@ -24,11 +24,11 @@
    Lam
    (--> (in-hole C ((lambda (x) e_1) e_2))
         (in-hole C (substitute e_1 x e_2))
-        substitue-lambda-beta-reduction)
+        substitute-lambda-beta-reduction)
    (--> (in-hole C ((e)))
         (in-hole C e))))
 
-;; test if sbustitution works
+;; test if substitution works
 (test-equal
  (apply-reduction-relation Lam-Reduction (term ((lambda (x) y) (lambda (z) y))))
  (term (y)))
@@ -90,7 +90,7 @@
    (--> (in-hole C (e))
         (in-hole C e))))
 
- ;; test if sbustitution works
+ ;; test if substitution works
 (test-equal
  (apply-reduction-relation LamBool-Reduction (term ((lambda (x) y) (lambda (z) y))))
  (term (y)))

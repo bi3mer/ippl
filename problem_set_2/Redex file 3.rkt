@@ -162,14 +162,6 @@
 ; specific cases of e == (e) or e == e. Any feedback on how to get rid of those
 ; parentheses would be very appreciated.
 
-#;(define-metafunction ST
-  EquivalentConjecture : e -> boolean
-  [(EquivalentConjecture e)
-   ,(eqv? (term e_1) (term e_2))
-      (where e_1 (translate ,(apply-reduction-relation* LamBool-Reduction (term e))))
-      (where e_2 (apply-reduction-relation* Lam-Reduction (term (translate e))))])
-
-
 (define-metafunction ST
   EquivalentConjecture : e -> boolean
   [(EquivalentConjecture e)

@@ -1,0 +1,43 @@
+fix 3b
+
+fv(x) = {x}
+fv(e1 e2) = fv(e1) U FV(e2)
+FV(λx. e) = FV(E) - {x}
+
+But now do for it loc with more base cases like numbers, booleans, etc. for whatever is also in UML!
+
+3.c definitely change it to be by induction on the reductions
+
+n = 0 case
+
+then we say there are n steps and we get to <e', sigma'> -> <e'', sigma''>.
+
+We now have an arbitrary expression E[e] to handle. We then handle all the cases for each primitive reduction rule. 
+
+induction hypothesis: loc(e') subset of dom(sigma')
+show loc(e'') subset of dom(sigma'')
+
+We need another lemma to handle taking a step from e, nonempty(sigma) to e', sigma''. 
+
+
+lemma: <e, sigma> -> <e', sigma'>
+
+we need loc(e') subset of dom(sigma')
+we have loc(e) subset of dom(sigma) satisfied by induction hypothesis.
+
+case <ref v, sigma> allocation of L and add to sigma
+
+case <!L, sigma>:
+	1. we lose a location
+	2. no location is lost since it exists elsewhere
+	3. L is another location and no location is lost
+	4. L is another location and a location is lost
+
+IMPORTANT: We need to know that any location is already in the domain of sigma. 
+
+	For all l in dom(sigma) locat(sigma(l)) is a subset of dom(sigma)
+
+The question is where do we put this? We need it coming in and going out. It needs to be preserved.
+
+
+

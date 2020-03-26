@@ -10,7 +10,6 @@
 (define g1 (term (graph (node a) (node b) (node c) (edge b a) (edge b c))))
 (define g2 (term (graph (node a) (node b) (edge b a) (edge b c))))
 
-
 (test-equal (redex-match? Graph g g1) #t)
 (test-equal (redex-match? Graph g g2) #t)
 

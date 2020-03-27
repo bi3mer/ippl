@@ -33,7 +33,7 @@
      (r C x)
      (x = e)
      (x [ e ... ] = e)
-     (s ...)) ;; (for(x in e : e) s) (if e s then s)
+     (s ...)) ;; (for(x in e : e) s) ((for x in e) s) (if e s then s) 
   
   ;; primative values
   (pv ::= integer number)
@@ -55,6 +55,8 @@
       (offset = number)
       (multiplier = number)
       (C ...))
+
+  ;; Array 
 
   ;; Math Operators
   (MO ::= + - * / ^ %)
@@ -85,7 +87,10 @@
 ;;;; stan environment
 ;; TODO: add type
 (define-extended-language STAN_E STAN
-  (σ ::= ((x EV) ...) (variable-not-found-error x)))
+  (σ ::=
+     ((x EV) ...)
+     (variable-not-found-error x)
+     (variable-already-initialized x)))
 
 (define-metafunction STAN
   extend : ((x EV) ...) x EV -> ((x EV) ...)
@@ -108,7 +113,12 @@
 (define-metafunction STAN_E
   setVar : σ x EV -> σ
   [(setVar σ x EV) (extend σ x EV) (side-condition (term (exists σ x)))]
-  [(setVar σ x EV) (variable-not-found-error z)])
+  [(setVar σ x EV) (variable-not-found-error x)])
+
+(define-metafunction STAN_E
+  createVar : σ x EV -> σ
+  [(createVar σ x EV) (extend σ x EV) (side-condition (not (term (exists σ x))))]
+  [(createVar σ x EV) (variable-already-initialized x)])
 
 ;;;; Required Metafunctions
 ;; math operations
@@ -140,10 +150,10 @@
        findVar)
 
    (--> [(in-hole E (i C x)) σ]
-        [(in-hole E skip) (extend σ x 0)] ; (extend (extend σ x 0) current x) 
+        [(in-hole E skip) (createVar σ x 0)] ; (extend (extend σ x 0) current x) 
         assign-int)
    (--> [(in-hole E (r C x)) σ]
-        [(in-hole E skip) (extend σ x 0.0)] ; (extend (extend σ x 0.0) current x) 
+        [(in-hole E skip) (createVar σ x 0.0)] ; (extend (extend σ x 0.0) current x) 
         assign-real)
 
    ;; (x [e] = e case is not handled
@@ -251,6 +261,10 @@
 
 ; note that arrays, vectors, and matrices are not handled yet
 ; note that x [ y ... ] is not tested yet. 
+
+;; redeclaration of variables should fail
+(define rv1 (apply-reduction-relation* stan_r (term (((r none x) (i none x)) ()))))
+(test-equal (term (getEnv ,rv1)) (term (variable-already-initialized x)))
 
 ;; math operations
 (define mo1 (apply-reduction-relation* stan_r (term (((i none x) (x = (4 + 4))) ()))))

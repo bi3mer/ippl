@@ -1,0 +1,1 @@
+("7.5" racket ("1153bff3456ddb239f3e8ce42aadb427c57d0326" . "16d732d4e6c067034cd7a71f708a819164f8c81d") #"/Users/colan/projects/northeastern/classes/ippl_cs7847/ippl/STAN/stan_bnf.rkt" (collects #"errortrace" #"errortrace-key.rkt") (collects #"racket" #"main.rkt") (collects #"racket" #"runtime-config.rkt") (collects #"redex" #"main.rkt"))

@@ -19,185 +19,181 @@
 ;;   nothing wrong with giving a variable 100 lower bounds. The implementation
 ;;   will only use the last one but this could be seen as a limitation to the
 ;;   implementation provided.
+;; - syntax simplified so a variable has to be declared before its value can be
+;;   assigned.
+;; - syntax simplified for [][] case to be [ number ... ] to simplify the AST to
+;;   be more manageable.
 
 ;;;; Stan language
 (define-language STAN
-  (e ::= pv x (e ...) (e [e])) ;; 
-  (s ::= skip (T x = e) (s ...)) ;;  (for(x in e : e) s) (if e s then s)
+  (e ::= pv x (e ...) (e [e]) (e MO e)) ;; 
+  (s ::=
+     skip
+     (i C x)
+     (r C x)
+     (x = e)
+     (x [ e ... ] = e)
+     (s ...)) ;; (for(x in e : e) s) (if e s then s)
   
   ;; primative values
   (pv ::= integer number)
 
-  ;; values
+  ;; Values
   (V ::= pv)
+
+  ;; Environment Values
+  (EV ::= V x)
   
-  ;; integer restrictions
-  (IR ::=
-      none
-      (lower = integer)
-      (upper = integer)
-      (IR IR))
-  
-  ;; real restrictions
-  (RR ::=
+  ;; Constraints. Non-relevant constraints will not be used in the final checking
+  (C ::=
       none
       (lower = number)
       (upper = number)
       (offset = number)
       (multiplier = number)
-      (RR RR))
-  
-  ;; vector restrictions
-  (VR ::= x)
+      (C ...))
 
-  ;; matrix restrictions
-  (MR :: x)
+  ;; Math Operators
+  (MO ::= + - * /)
 
-  ;; Types, if I name real real then I get an error that I can't handle. So it
-  ;; is now called r. TO fit this, I changed int to i. Vector to v. Matrix to
-  ;; m.
-  (T ::= (i IR) (r RR)) ;; vector matrix array
+  ;; Array Math Operators
+  (AMO ::= .* ./)
 
-  ;; Operators
-  (O ::= + - * / .* ./)
+  ;; Math Boolean Operators
+  (MBO ::= > >= <= <=)
 
-  ;; boolean operators
-  (BO ::= > >= <= <= == !=)
+  ;; Boolean Operators
+  (BO ::= == !=)
 
   ;; Operation Semantics
   (E ::=
      hole
      (skip ... E s ...)
-     (T x = E))
+     (x = E)
+     (E MO e)
+     (pv MO E))
 
   ;; variable
   (x ::= variable-not-otherwise-mentioned))
 
 ;;;; stan environment
+;; TODO: add type
 (define-extended-language STAN_E STAN
-  (σ ::= ((x V) ...)))
+  (σ ::= ((x EV) ...) (variable-not-found-error x)))
 
 (define-metafunction STAN
-  extend : ((x V) ...) x V -> ((x V) ...)
-  [(extend () x V) ((x V))]
-  [(extend ((x V) (x_rest V_rest) ...) x_1 V_1)
-    ((x V_1) (x_rest V_REST) ...)
+  extend : ((x EV) ...) x EV -> ((x EV) ...)
+  [(extend () x EV) ((x EV))]
+  [(extend ((x EV) (x_rest EV_rest) ...) x_1 EV_1)
+    ((x EV_1) (x_rest EV_rest) ...)
     (side-condition (eqv? (term x) (term x_1)))]
-  [(extend ((x V) (x_rest V_REST) ...) x_1 V_1)
-    ,(cons (term (x V)) (term (extend ((x_rest V_rest) ...) x_1 V_1)))])
+  [(extend ((x EV) (x_rest EV_rest) ...) x_1 EV_1)
+    ,(cons (term (x EV)) (term (extend ((x_rest EV_rest) ...) x_1 EV_1)))])
 
 (define-metafunction STAN
-  lookup : ((x V) ...) x -> V
-  [(lookup (_ ... (x V) _ ...) x) V])
+  lookup : ((x EV) ...) x -> EV
+  [(lookup (_ ... (x EV) _ ...) x) EV])
+
+(define-metafunction STAN
+  exists : ((x EV) ...) x -> boolean
+  [(exists (_ ... (x EV) _ ...) x) #t]
+  [(exists ((x_1 EV) ...) x) #f])
+
+(define-metafunction STAN_E
+  setVar : σ x EV -> σ
+  [(setVar σ x EV) (extend σ x EV) (side-condition (term (exists σ x)))]
+  [(setVar σ x EV) (variable-not-found-error z)])
 
 ;;;; Required Metafunctions
-;; arithmetic
+;; math operations
+(define-metafunction STAN
+  mathOperation : pv MO pv -> pv
+  [(mathOperation pv_1 + pv_2) ,(+ (term pv_1) (term pv_2))]
+  [(mathOperation pv_1 - pv_2) ,(- (term pv_1) (term pv_2))]
+  [(mathOperation pv_1 * pv_2) ,(* (term pv_1) (term pv_2))]
+  [(mathOperation pv_1 / pv_2) ,(/ (term pv_1) (term pv_2))])
+
 ;; boolean
 
+;; get the environment from the result of an apply reduction relation
+(define-metafunction STAN_E
+  getEnv : ((s σ)) -> σ
+  [(getEnv  ((s σ))) σ])
+
 ;;;; Reduction Relation
+;; probably need to use a meta function to pattern match on the constraints to
+;; fill everything in for testing at the end.
 (define stan_r
   (reduction-relation
    STAN_E
-   ;; Variables, still need type hcecking and bounds handling with the
-   ;; the T in there.
+   ;; variable operations
    (--> [(in-hole E x) σ]
        [(in-hole E (lookup σ x)) σ]
        findVar)
-   (--> [(in-hole E (T x = V)) σ]
-        [(in-hole E skip) (extend σ x V)]
-        assign)
 
-   ;; 
+   (--> [(in-hole E (i C x)) σ]
+        [(in-hole E skip) (extend σ x 0)] ; (extend (extend σ x 0) current x) 
+        assign-int)
+   (--> [(in-hole E (r C x)) σ]
+        [(in-hole E skip) (extend σ x 0.0)] ; (extend (extend σ x 0.0) current x) 
+        assign-real)
+
+   ;; (x [e] = e case is not handled
+   (--> [(in-hole E (x = pv)) σ]
+        [(in-hole E skip) (setVar σ x pv)]
+        update-val)
+
+   ;; math operations
+   (--> [(in-hole E (pv_1 MO pv_2)) σ]
+        [(in-hole E (mathOperation pv_1 MO pv_2)) σ]
+        math-operation)
+
+   ;; for
+
+   ;; if
    ))
 
-
-
-;;;;;;;;;;;;;;; Grammar Tests ;;;;;;;;;;;;;;;
-;; test expressions
-(test-equal (redex-match? STAN e (term x)) #t)
-(test-equal (redex-match? STAN e (term (x y z 100))) #t)
-(test-equal (redex-match? STAN e (term (x[y]))) #t)
-(test-equal (redex-match? STAN e (term (x[1]))) #t)
-
-;; test statements
+;;;;;;;;;;;;;;; Syntax Tests ;;;;;;;;;;;;;;;
+;; variable definitions
 (test-equal
- (redex-match? STAN s (term skip))
- #t)
-
-;; test int bounding
-(test-equal
- (redex-match? STAN s (term ((i none) x = 3)))
+ (redex-match? STAN s (term (r none x)))
  #t)
 
 (test-equal
- (redex-match? STAN s (term ((i (lower = 3)) x = 1)))
+ (redex-match? STAN s (term (i none x)))
  #t)
 
 (test-equal
- (redex-match? STAN s (term ((i (upper = 3)) x = 1)))
+ (redex-match? STAN s (term (r (upper = 0) x)))
  #t)
 
 (test-equal
- (redex-match? STAN s (term ((i ((lower = 1) (upper = 3))) x = 1)))
- #t)
-
-;; test real bounding
-(test-equal
- (redex-match? STAN s (term ((r none) x = 3)))
+ (redex-match? STAN s (term (r ((lower = 1) (upper = 0)) x)))
  #t)
 
 (test-equal
- (redex-match? STAN s (term ((r (lower = 3)) x = 1)))
+ (redex-match? STAN s (term (r ((lower = 1) (offset = 0) (multiplier = 3)) x)))
  #t)
 
 (test-equal
- (redex-match? STAN s (term ((r (upper = 3)) x = 1)))
+ (redex-match? STAN s (term (r ((lower = 1) (offset = 0) (badtag = 3)) x)))
+ #f)
+
+;; setting a variable
+(test-equal (redex-match? STAN s (term (x = 3)))
  #t)
 
 (test-equal
- (redex-match? STAN s (term ((r (offset = 3)) x = 1)))
+ (redex-match? STAN s (term (x [3] = 3)))
  #t)
 
 (test-equal
- (redex-match? STAN s (term ((r (multiplier = 3)) x = 1)))
+ (redex-match? STAN s (term (x [y] = 3)))
  #t)
 
 (test-equal
- (redex-match? STAN s (term ((r ((lower = 1) (upper = 3))) x = 1)))
+ (redex-match? STAN s (term (x ([y 0 1]) = 3)))
  #t)
-
-(test-equal
- (redex-match?
-  STAN s (term ((r ((lower = 1) ((upper = 3) (offset = 10)))) x = 1)))
- #t)
-
-(test-equal
- (redex-match?
-  STAN s (term ((r ((lower = 1) ((upper = 3) ((offset = 10) (multiplier = 2))))) x = 1)))
- #t)
-
-;; test list of statements
-(test-equal
- (redex-match? STAN s (term (skip skip)))
- #t)
-
-(test-equal
- (redex-match? STAN s (term (skip ((i none) x = 3))))
- #t)
-
-(test-equal
- (redex-match? STAN s (term (((r none) x = 3) skip)))
- #t)
-
-(test-equal
- (redex-match? STAN s (term (((r none) x = 3) ((i none) x = 3))))
- #t)
-
-"commented out test since we don't have arithmetic yet"
-#;(test-equal
- (redex-match? STAN s (term (((r none) x = 3) ((i none) x = (3 + x)))))
- #t)
-
 
 ;;;;;;;;;;;;;;; Environment Tests ;;;;;;;;;;;;;;;
 (test-equal (term (extend () x 3)) (term ((x 3))))
@@ -208,30 +204,62 @@
 (test-equal (term (lookup ((x 3)) x)) (term 3))
 (test-equal (term (lookup ((x 3) (y 7.01)) y)) (term 7.01))
 
-;;;;;;;;;;;;;;; Meta Function Tests ;;;;;;;;;;;;;;;
+(test-equal (term (exists ((x 3)) x)) #t)
+(test-equal (term (exists ((x 3) (y 3)) y)) #t)
+(test-equal (term (exists ((x 3) (y 3)) z)) #f)
+
+(test-equal (term (setVar ((x 3)) x 10)) (term ((x 10))))
+(test-equal (term (setVar ((x 3)) z 10)) (term (variable-not-found-error z)))
 
 ;;;;;;;;;;;;;;; Judgement Tests ;;;;;;;;;;;;;;;
 
 ;;;;;;;;;;;;;;; Reduction Relation Tests ;;;;;;;;;;;;;;;
-;;;; Helper Meta functions
-;; get the environment from the result of an apply reduction relation
-(define-metafunction STAN_E
-  getEnv : ((s σ)) -> σ
-  [(getEnv  ((s σ))) σ])
+;; variable creation
+(define vc1 (apply-reduction-relation* stan_r (term ((r none x) ()))))
+(test-equal (term (lookup (getEnv ,vc1) x)) 0.0)
+
+(define vc2 (apply-reduction-relation* stan_r (term ((i none x) ()))))
+(test-equal (term (lookup (getEnv ,vc2) x)) 0)
+
+(define vc3 (apply-reduction-relation* stan_r (term (((r none x) (i none y)) ()))))
+(test-equal (term (lookup (getEnv ,vc3) x)) 0.0)
+(test-equal (term (lookup (getEnv ,vc3) x)) 0.0)
+
+; note that arrays, vectors, and matrices are not handled yet
 
 ;; variable assignment
-(define res1 (apply-reduction-relation* stan_r (term (((i none) x = 3) ()))))
-(test-equal (term (lookup (getEnv ,res1) x)) 3)
+(define va1 (apply-reduction-relation* stan_r (term (((r none x) (x = 3.0)) ()))))
+(test-equal (term (lookup (getEnv ,va1) x)) 3.0)
 
-(define res2 (apply-reduction-relation* stan_r (term (((i none) x = 3.12) ()))))
-(test-equal (term (lookup (getEnv ,res2) x)) 3.12)
+(define va2 (apply-reduction-relation* stan_r (term (((r none x) (z = 1)) ()))))
+(test-equal (term (getEnv ,va2)) (term (variable-not-found-error z)))
 
-(define res3 (apply-reduction-relation* stan_r (term ((((i none) x = 42) ((r none) y = 3.212)) ()))))
-(test-equal (term (lookup (getEnv ,res3) x)) 42)
-(test-equal (term (lookup (getEnv ,res3) y)) 3.212)
+(define va3 (apply-reduction-relation* stan_r (term (((r none z) (z = 1)) ()))))
+(test-equal (term (getEnv ,va3)) (term ((z 1))))
 
-;;;;;;;;;;;;;;; Full Program Tests ;;;;;;;;;;;;;;;
+; note that arrays, vectors, and matrices are not handled yet
+; note that x [ y ... ] is not tested yet. 
 
+;; math operations
+(define mo1 (apply-reduction-relation* stan_r (term (((i none x) (x = (4 + 4))) ()))))
+(test-equal (term (lookup (getEnv ,mo1) x)) 8)
+
+(define mo2 (apply-reduction-relation* stan_r (term (((i none x) (x = (4 - 4))) ()))))
+(test-equal (term (lookup (getEnv ,mo2) x)) 0)
+
+(define mo3 (apply-reduction-relation* stan_r (term (((i none x) (x = (4 * 4))) ()))))
+(test-equal (term (lookup (getEnv ,mo3) x)) 16)
+
+(define mo4 (apply-reduction-relation* stan_r (term (((i none x) (x = (4 / 4))) ()))))
+(test-equal (term (lookup (getEnv ,mo4) x)) 1)
+
+(define mo5
+  (apply-reduction-relation*
+   stan_r (term (((i none x) (x = (4 + 4)) (i none y) (y = (x * x))) ()))))
+(test-equal (term (lookup (getEnv ,mo5) x)) 8)
+(test-equal (term (lookup (getEnv ,mo5) y)) 64)
+
+;(test-equal (term (getEnv ,mo1)) (term ((x 8))))
 
 (test-results)
 

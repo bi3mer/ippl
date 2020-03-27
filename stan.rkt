@@ -26,7 +26,7 @@
 
 ;;;; Stan language
 (define-language STAN
-  (e ::= pv x (e ...) (e [e]) (e MO e)) ;; 
+  (e ::= pv x (e ...) (e [e]) (e MO e) (e AMO e) (- e)) ;; 
   (s ::=
      skip
      (i C x)
@@ -38,8 +38,11 @@
   ;; primative values
   (pv ::= integer number)
 
+  ;; vector
+  (vec ::= vector)
+
   ;; Values
-  (V ::= pv)
+  (V ::= pv vec)
 
   ;; Environment Values
   (EV ::= V x)
@@ -54,7 +57,7 @@
       (C ...))
 
   ;; Math Operators
-  (MO ::= + - * /)
+  (MO ::= + - * / ^ %)
 
   ;; Array Math Operators
   (AMO ::= .* ./)
@@ -71,7 +74,10 @@
      (skip ... E s ...)
      (x = E)
      (E MO e)
-     (pv MO E))
+     (pv MO E)
+     (- E)
+     (E AMO e)
+     (vec AMO E))
 
   ;; variable
   (x ::= variable-not-otherwise-mentioned))
@@ -111,7 +117,9 @@
   [(mathOperation pv_1 + pv_2) ,(+ (term pv_1) (term pv_2))]
   [(mathOperation pv_1 - pv_2) ,(- (term pv_1) (term pv_2))]
   [(mathOperation pv_1 * pv_2) ,(* (term pv_1) (term pv_2))]
-  [(mathOperation pv_1 / pv_2) ,(/ (term pv_1) (term pv_2))])
+  [(mathOperation pv_1 / pv_2) ,(/ (term pv_1) (term pv_2))]
+  [(mathOperation pv_1 ^ pv_2) ,(expt (term pv_1) (term pv_2))]
+  [(mathOperation pv_1 % pv_2) ,(modulo (term pv_1) (term pv_2))])
 
 ;; boolean
 
@@ -147,6 +155,10 @@
    (--> [(in-hole E (pv_1 MO pv_2)) σ]
         [(in-hole E (mathOperation pv_1 MO pv_2)) σ]
         math-operation)
+
+   (--> [(in-hole E (- pv)) σ]
+        [(in-hole E (mathOperation pv * -1)) σ]
+        math-negative)
 
    ;; for
 
@@ -250,14 +262,23 @@
 (define mo3 (apply-reduction-relation* stan_r (term (((i none x) (x = (4 * 4))) ()))))
 (test-equal (term (lookup (getEnv ,mo3) x)) 16)
 
-(define mo4 (apply-reduction-relation* stan_r (term (((i none x) (x = (4 / 4))) ()))))
+(define mo4 (apply-reduction-relation* stan_r (term (((i (lower = 0) x) (x = (4 / 4))) ()))))
 (test-equal (term (lookup (getEnv ,mo4) x)) 1)
 
-(define mo5
-  (apply-reduction-relation*
-   stan_r (term (((i none x) (x = (4 + 4)) (i none y) (y = (x * x))) ()))))
+(define mo5 (apply-reduction-relation* stan_r (term (((i none x) (x = (4 + 4)) (i none y) (y = ((x * x) / 8))) ()))))
 (test-equal (term (lookup (getEnv ,mo5) x)) 8)
-(test-equal (term (lookup (getEnv ,mo5) y)) 64)
+(test-equal (term (lookup (getEnv ,mo5) y)) 8)
+
+(define mo6 (apply-reduction-relation* stan_r (term (((i none x) (x = (4 ^ 4))) ()))))
+(test-equal (term (lookup (getEnv ,mo6) x)) 256)
+
+(define mo7 (apply-reduction-relation* stan_r (term (((i none x) (x = (3 % 2))) ()))))
+(test-equal (term (lookup (getEnv ,mo7) x)) 1)
+
+(define mo8 (apply-reduction-relation* stan_r (term (((i none x) (x = 3) (x = (- x))) ()))))
+(test-equal (term (lookup (getEnv ,mo8) x)) -3)
+
+;; array math operations
 
 ;(test-equal (term (getEnv ,mo1)) (term ((x 8))))
 

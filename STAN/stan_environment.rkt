@@ -2,83 +2,74 @@
 (require redex)
 (require "stan_bnf.rkt")
 
-;; extended Stan language to contain an environment for variables.
+;; extended Stan language to contain an environment for variables. Made public.
 (define-extended-language STAN_E STAN
-  (σ ::=
-     ((x EV C t) ...)
-     (variable-not-found-error x)
-     (variable-already-initialized x)))
+  (σ ::= ((x EV C t) ...)))
 
-;; add to the environment or update a value
+;;;;;;;;;;;;;;;;; Private Functions ;;;;;;;;;;;;;;;;;
+;; Add variable to the environment. If this is being called then the
+;; variable has already been checked and been shown to not exist. 
 (define-metafunction STAN
-  extend : ((x EV C t) ...) x EV C t -> ((x EV C t) ...)
-  ;; empty list case
-  [(extend () x EV C t ) ((x EV C t)) ]
-  ;; overwritting current variable
-  ;[(extend ((x EV C t) (x_rest EV_rest C_rest t_rest) ...) x_1 EV_1 C_1 t_1)
-  ;  ((x EV_1 C_1 t_1) (x_rest EV_rest C_rest t_rest) ...)
-  ;  (side-condition (eqv? (term x) (term x_1)))]
-  ;; Moving over to next entry since current variable is not relevant
-  [(extend ((x EV C t) (x_rest EV_rest C_rest t_rest) ...) x_1 EV_1 C_1 t_1)
-    ,(cons (term (x EV C t)) (term (extend ((x_rest EV_rest) ...) x_1 EV_1 C_1 t_1)))])
+  addVariable : ((x EV C t) ...) x EV C t -> ((x EV C t) ...)
+  [(addVariable ((x_1 EV_1 C_1 t_1) ...) x EV C t)
+   ((x EV C t) (x_1 EV_1 C_1 t_1) ...)])
 
-;; from the environment, retrieve the value for the given variable name
+;; Update the value of a variable. If this is being called then
+;; the variable ahs already been checked and shown to exist.
 (define-metafunction STAN
-  getValue : ((x EV C t) ...) x -> EV
-  [(getValue (_ ... (x EV C t) _ ...) x) EV])
+  updateVariable : ((x EV C t) ...) x EV -> ((x EV C t) ...)
+  ; update variable since it was found
+  [(updateVariable ((x_h EV_h C_h t_h) (x_r EV_r C_r t_r) ...) x EV)
+   ((x_h EV C_h t_h) (x_r EV_r C_r t_r) ...)
+   (side-condition (eqv? (term x_h) (term x)))]
+  
+  ; variable not found so keep looking
+  [(updateVariable ((x_h E_h C_h t_h) (x_r EV_r C_r t_r) ...) x EV)
+   ,(cons (term (x_h EV_h C_h t_h)) (term (updateVariable ((x_r EV_r C_r t_r) ...) x EV)))])
 
-;; from the environment, retrieve the constraint for the given variable name
+;; Find if a variable exists.
 (define-metafunction STAN
-  getConstraints : ((x EV C t) ...) x -> C
-  [(getConstraints (_ ... (x EV C t) _ ...) x) C])
+  exists : ((x EV C t) ...) x -> boolean
+  [(exists () x) #f]
+  [(exists (_ ... (x EV C t) _ ...) x) #t]
+  [(exists (_ ... (x_any EV C t) _ ...) x) #f])
 
-;; from the environment, retrieve the type for the given variable name
+;;;;;;;;;;;;;;;;; Public Functions ;;;;;;;;;;;;;;;;;
+;; from the environment, retrieve the value for the given variable name.
 (define-metafunction STAN
-  getType : ((x EV C t) ...) x -> t
-  [(getType (_ ... (x EV C t) _ ...) x) t])
+  env->getValue : ((x EV C t) ...) x -> EV
+  [(env->getValue (_ ... (x EV C t) _ ...) x) EV])
 
-;; returnt rue if the variable type is the same as the EV type
+;; from the environment, retrieve the constraint for the given variable name.
+(define-metafunction STAN
+  env->getConstraints : ((x EV C t) ...) x -> C
+  [(env->getConstraints (_ ... (x EV C t) _ ...) x) C])
+
+;; from the environment, retrieve the type for the given variable name.
+(define-metafunction STAN
+  env->getType : ((x EV C t) ...) x -> t
+  [(env->getType (_ ... (x EV C t) _ ...) x) t])
+
+;; set a variable value if it already exists. If it does not then an error is
+;; thrown
 (define-metafunction STAN_E
-  typeMatch : V t -> boolean
-  [(typeMatch V i) ,(integer? (term V))]
-  [(typeMatch V r) ,(number? (term V))]
-  [(typeMatch V vec-type) ,(vector? (term V))])
+  env->updateVar : σ x EV -> σ
+  [(env->updateVar σ x EV)
+   (updateVariable σ x EV)
+   (side-condition (term (exists σ x)))])
 
-;; set a variables value. Will return an error environment if the variable is
-;; not found or the type is wrong. 
+;; create a variable if it does not already exists. If it does then no clause
+;; matches and this is an error state.
 (define-metafunction STAN_E
-  setVar : σ x EV -> σ
-  [(setVar σ x EV) (extend σ x EV) (side-condition (term (exists σ x)))]
-  [(setVar σ x EV) (variable-not-found-error x)])
+  env->createVar : σ x EV C t -> σ
+  [(env->createVar σ x_1 EV_1 C_1 t_1)
+   (addVariable σ x_1 EV_1 C_1 t_1)
+   (side-condition (not (term (exists σ x_1))))])
 
-(define one (term (extend () x 3 none r)))
-one
-;(define two (term (extend ,one x 3.0 (upper = 3) r)))
-;two
-(define three (term (extend ,one y 3.0 (upper = 3) r)))
-three
-(term (getValue ,three y))
-(term (getConstraints ,three y))
-(term (getType ,three y))
-(test-equal (term (typeMatch 3 i)) #t)
-(test-equal (term (typeMatch 3.01 i)) #f)
-(test-equal (term (typeMatch 3 r)) #t)
-(test-equal (term (typeMatch 3.01 r)) #t)
-;(test-equal (term (typeMatch (vector 3 12) v)) #t)
-
-"should be true"
-(redex-match? STAN vec (term (3 1 2 150.0)))
-
-
-(test-results)
-
-
-
-
-
-
-
-(define-metafunction STAN_E
-  createVar : σ x EV -> σ
-  [(createVar σ x EV) (extend σ x EV) (side-condition (not (term (exists σ x))))]
-  [(createVar σ x EV) (variable-already-initialized x)])
+;; exports
+(provide STAN_E)
+(provide env->getValue)
+(provide env->getConstraints)
+(provide env->getType)
+(provide env->updateVar)
+(provide env->createVar)

@@ -1,1 +1,2 @@
 *.rkt~
+STAN/compiled/drracket/errortrace/*

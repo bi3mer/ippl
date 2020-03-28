@@ -90,7 +90,8 @@
 (define-metafunction STAN
   vector->subtract-vectors-private : vec vec -> vec
   [(vector->subtract-vectors-private () ()) ()]
-  [(vector->subtract-vectors-private (number_1 number_1_rest ...) (number_2 number_2_rest ...))
+  [(vector->subtract-vectors-private 
+   (number_1 number_1_rest ...) (number_2 number_2_rest ...))
    ,(cons
      (- (term number_1) (term number_2))
      (term (vector->subtract-vectors-private (number_1_rest ...) (number_2_rest ...))))])

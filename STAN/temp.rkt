@@ -141,10 +141,6 @@
 
 ;; boolean
 
-;; get the environment from the result of an apply reduction relation
-(define-metafunction STAN_E
-  getEnv : ((s σ)) -> σ
-  [(getEnv  ((s σ))) σ])
 
 ;;;; Reduction Relation
 ;; probably need to use a meta function to pattern match on the constraints to

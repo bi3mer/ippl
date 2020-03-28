@@ -32,7 +32,7 @@
      skip
      (i C x)
      (r C x)
-     (vec-type integer C x) ;; type of vector, size of vector, constraints, and name.
+     (vec-type int C x)
      (x = e)
      (x [ e ... ] = e)
      (s ...)) ;; (for(x in e : e) s) ((for x in e) s) (if e s then s) 
@@ -49,7 +49,7 @@
   (t ::= i r vec-type a) ; m,,, int real vector array matrix
 
   ;; matrix
-  ;(matrix-types ::= matrix cov-matrix cholesky-factor-cov cholesky-factor-corr)
+  (matrix-types ::= matrix cov-matrix cholesky-factor-cov cholesky-factor-corr)
 
   ;; Values
   (V ::= pv vec)
@@ -73,10 +73,7 @@
   (AMO ::= .* ./)
 
   ;; Math Boolean Operators
-  (MBO ::= > >= <= <=)
-
-  ;; Boolean Operators
-  (BO ::= == !=)
+  (MBO ::= > >= <= <= == !=)
 
   ;; Operation Semantics
   (E ::=

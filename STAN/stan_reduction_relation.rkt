@@ -8,16 +8,25 @@
   (reduction-relation
    STAN_E
    ;; variable operations
+   ; get a variable
    (--> [(in-hole E x) σ]
        [(in-hole E (lookup σ x)) σ]
        findVar)
-
+   
+   ; create int
    (--> [(in-hole E (i C x)) σ]
-        [(in-hole E skip) (createVar σ x 0)] ; (extend (extend σ x 0) current x) 
+        [(in-hole E skip) (env->createVar σ x 0 C i)] 
         assign-int)
+   ; create real
    (--> [(in-hole E (r C x)) σ]
-        [(in-hole E skip) (createVar σ x 0.0)] ; (extend (extend σ x 0.0) current x) 
+        [(in-hole E skip) (env->createVar σ x 0.0 C r)]
         assign-real)
+   ; create vector
+   (--> [(in-hole E (vec-type int C x)) σ]
+        [(in-hole E skip) (env->createVar σ x (vector->init int) C vec-type)]
+        assign-vec)
+
+   ; update variable
 
    ;; (x [e] = e case is not handled
    (--> [(in-hole E (x = pv)) σ]
@@ -25,15 +34,33 @@
         update-val)
 
    ;; math operations
+   ; real and ints
    (--> [(in-hole E (pv_1 MO pv_2)) σ]
-        [(in-hole E (mathOperation pv_1 MO pv_2)) σ]
+        [(in-hole E (meta->mathOperation pv_1 MO pv_2)) σ]
         math-operation)
 
    (--> [(in-hole E (- pv)) σ]
-        [(in-hole E (mathOperation pv * -1)) σ]
-        math-negative)
+        [(in-hole E (meta->mathOperation pv * -1)) σ]
+        math-negative-operation)
+
+   ; vectors
+   (--> [(in-hole E (vec_1 AMO vec_2)) σ]
+        [(in-hole E (meta->vectorMathOperation vec_1 AMO vec_2)) σ]
+        vector-math-operation)
 
    ;; for
 
    ;; if
    ))
+
+(define-metafunction STAN_E
+  stan->simplifyOut : ((s σ)) -> (s σ)
+  [(stan->simplifyOut ((s σ))) (s σ)])
+
+(define-metafunction STAN_E
+  stan->run : s -> (s σ)
+  [(stan->run s)
+   (stan->simplifyOut ,(apply-reduction-relation* stan_r (term (s ()) )))])
+
+(provide stan_r)
+(provide stan->run)

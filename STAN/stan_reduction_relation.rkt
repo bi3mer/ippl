@@ -8,11 +8,6 @@
   (reduction-relation
    STAN_E
    ;; variable operations
-   ; get a variable
-   (--> [(in-hole E x) σ]
-       [(in-hole E (lookup σ x)) σ]
-       findVar)
-   
    ; create int
    (--> [(in-hole E (i C x)) σ]
         [(in-hole E skip) (env->createVar σ x 0 C i)] 
@@ -27,11 +22,14 @@
         assign-vec)
 
    ; update variable
-
-   ;; (x [e] = e case is not handled
    (--> [(in-hole E (x = pv)) σ]
-        [(in-hole E skip) (setVar σ x pv)]
-        update-val)
+        [(in-hole E skip) (env->updateVar σ x pv)]
+        update-variable-number)
+
+   ; get a variable
+   (--> [(in-hole E x) σ]
+       [(in-hole E (lookup σ x)) σ]
+       findVar)
 
    ;; math operations
    ; real and ints

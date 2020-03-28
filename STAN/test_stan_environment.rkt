@@ -11,8 +11,8 @@
 (define cv2 (term (env->createVar ,cv1 y (3.0 2.0) none v)))
 (test-equal cv2 (term ((y (3.0 2.0) none v) (x 3.0 (upper = 0) r))))
 
-; will throw an error
-;(term (env->createVar ,cv2 y 3 none i))
+(define cv3 (term (env->createVar ,cv2 y 3 none i)))
+(test-equal cv3 "cannot create variable that already exists")
 
 ;; test env->updateVar
 (define uv1 (term (env->updateVar ((x 3.0 none r)) x -1.0)))
@@ -24,8 +24,8 @@
 (define uv3 (term (env->updateVar ,cv2 y (3.0 5.0))))
 (test-equal uv3 (term ((y (3.0 5.0) none v) (x 3.0 (upper = 0) r))))
 
-; will throw an error
-;(term (env->updateVar ,uv3 z 3.0))
+(define uv4 (term (env->updateVar ,uv3 z 3.0)))
+(test-equal uv4 "cannot update variable that does not exist")
 
 ;; test env->getType
 (test-equal (term (env->getType ,uv3 y)) (term v))

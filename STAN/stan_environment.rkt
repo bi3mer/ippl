@@ -53,18 +53,20 @@
 ;; set a variable value if it already exists. If it does not then an error is
 ;; thrown
 (define-metafunction STAN_E
-  env->updateVar : σ x EV -> σ
+  env->updateVar : σ x EV -> σ or "cannot update variable that does not exist"
   [(env->updateVar σ x EV)
    (updateVariable σ x EV)
-   (side-condition (term (exists σ x)))])
+   (side-condition (term (exists σ x)))]
+  [(env->updateVar σ x EV) "cannot update variable that does not exist"])
 
 ;; create a variable if it does not already exists. If it does then no clause
 ;; matches and this is an error state.
 (define-metafunction STAN_E
-  env->createVar : σ x EV C t -> σ
+  env->createVar : σ x EV C t -> σ or "cannot create variable that already exists"
   [(env->createVar σ x_1 EV_1 C_1 t_1)
    (addVariable σ x_1 EV_1 C_1 t_1)
-   (side-condition (not (term (exists σ x_1))))])
+   (side-condition (not (term (exists σ x_1))))]
+  [(env->createVar  σ x_1 EV_1 C_1 t_1) "cannot create variable that already exists"])
 
 ;; exports
 (provide STAN_E)

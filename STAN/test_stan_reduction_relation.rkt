@@ -108,7 +108,16 @@
 (define mt6 (term (stan->run ((r none x) (x = (2.0 ^ 3.0)))) ))
 (test-equal (term (meta->getEnvironment ,mt6)) (term ((x 8.0 none r))))
 
+(define mt7 (term (stan->run ((r none x) (x = (2.0 ^ (3.0 - 1.0))))) ))
+(test-equal (term (meta->getEnvironment ,mt7)) (term ((x 4.0 none r))))
+
 ;; vector math tests
+(define vmt
+  (term (stan->run ((v 4 none x)
+                    (x [2] = 3)
+                    (v 4 none y)
+                    (y [2] = 10)
+                    (y = (x .* y))))))
 
 (test-results)
 

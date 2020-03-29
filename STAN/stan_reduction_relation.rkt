@@ -27,6 +27,11 @@
         [(in-hole E skip) (env->updateNumber σ x pv)]
         update-variable-int-or-num)
 
+   ; update variable value for a vector
+   (--> [(in-hole E (x = vec)) σ]
+        [(in-hole E skip) (env->updateNumber σ x vec)]
+        update-variable-int-or-num)
+
    ; update vector value
    (--> [(in-hole E (x [int] = pv)) σ]
         [(in-hole E skip) (env->updateVectorValue σ x int pv)] 

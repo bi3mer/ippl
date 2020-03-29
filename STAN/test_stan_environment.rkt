@@ -73,5 +73,22 @@
  (term (env->updateVectorValue ((x (3 0 1 1) none v)) x 5 1.12))
  "index out of bounds")
 
+;; test env->updateVector
+(test-equal
+ (term (env->updateVector () x (3 3)))
+ "variable not found")
+
+(test-equal
+ (term (env->updateVector ((x 3 none i)) x (3 3)))
+ "vector can only be assigned to variable of type vector")
+
+(test-equal
+ (term (env->updateVector ((x (3 3 3) none v)) x (3 3)))
+ "size cannot change on updating vector variable")
+
+(test-equal
+ (term (env->updateVector ((x (3 3) none v)) x (1 1)))
+ (term ((x (1 1) none v))))
+
 
 (test-results)

@@ -118,6 +118,29 @@
   [(env->updateVectorValue σ x int pv)
    (env->updateVar σ x (vector->set (env->getValue σ x) int pv))])
 
+;; update environment vector by new set. Will be called via .* or ./.
+(define-metafunction STAN_E
+  env->updateVector : σ x vec -> σ or
+  "variable not found" or 
+  "vector can only be assigned to variable of type vector" or
+  "size cannot change on updating vector variable"
+  [(env->updateVector σ x vec)
+   "variable not found"
+   (side-condition (not (term (variableExists σ x))))]
+  [(env->updateVector σ x vec)
+   "vector can only be assigned to variable of type vector"
+   (side-condition
+    (or
+     (eqv? (term (env->getType σ x)) (term i))
+     (eqv? (term (env->getType σ x)) (term r))))]
+  [(env->updateVector σ x vec)
+   "size cannot change on updating vector variable"
+   (side-condition
+    (not (eqv?
+     (term (vector->size vec))
+     (term (vector->size (env->getValue σ x))))))]
+  [(env->updateVector σ x vec) (env->updateVar σ x vec)])
+
 ;; exports
 (provide STAN_E)
 (provide env->getValue)
@@ -127,3 +150,4 @@
 (provide env->createVar)
 (provide env->updateNumber)
 (provide env->updateVectorValue)
+(provide env->updateVector)

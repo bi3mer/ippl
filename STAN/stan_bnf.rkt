@@ -61,7 +61,7 @@
   
   ;; Constraints. Non-relevant constraints will not be used in the final checking
   (C ::=
-      none
+      (none)
       (lower = number)
       (upper = number)
       (offset = number)

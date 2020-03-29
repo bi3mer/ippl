@@ -1,3 +1,56 @@
+#lang racket
 (require redex)
-(require "stan_environment.rkt")
 (require "stan_bnf.rkt")
+(require "stan_environment.rkt")
+
+(define-metafunction STAN_E
+  validateNumberConstraints : x EV C -> ((x error) ...)
+  [(validateNumberConstraints x EV ()) ()]
+  ;; none constraint
+  [(validateNumberConstraints x EV (none C_rest ...))
+   ,(cons (term (x "no error")) (term (validateNumberConstraints x EV (C_rest ...))))]
+  ;; upper constraint when side condition for upper met
+  [(validateNumberConstraints x EV ((upper = pv) C_rest ...))
+   ,(cons (term (x "no error")) (term (validateNumberConstraints x EV (C_rest ...))))
+   (side-condition (< (term EV) (term pv)))]
+  ;; upper constraint when side condition for upper is not met
+  [(validateNumberConstraints x EV ((upper = pv) C_rest ...))
+   ,(cons
+     (term (x "upper constraint not met"))
+     (term (validateNumberConstraints x EV (C_rest ...))))]
+  ;; lower constraint when side condition for upper met
+  [(validateNumberConstraints x EV ((lower = pv) C_rest ...))
+   ,(cons (term (x "no error")) (term (validateNumberConstraints x EV (C_rest ...))))
+   (side-condition (> (term EV) (term pv)))]
+  ;; lower constraint when side condition for upper is not met
+  [(validateNumberConstraints x EV ((lower = pv) C_rest ...))
+   ,(cons
+     (term (x "lower constraint not met"))
+     (term (validateNumberConstraints x EV (C_rest ...))))])
+
+(define-metafunction STAN_E
+  validateConstraint : x EV C t -> ((x error) ...)
+  [(validateConstraint x EV C i) (validateNumberConstraints x EV C)]
+  [(validateConstraint x EV C r) (validateNumberConstraints x EV C)])
+
+(define-metafunction STAN_E
+  constraints->validate : σ -> ((x error) ...)
+  [(constraints->validate ()) ()]
+  [(constraints->validate ((x_h EV_h C_h t_h) (x_t EV_t C_t t_t) ...))
+   ,(cons
+     (term (validateConstraint x_h EV_h C_h t_h))
+     (term (constraints->validate ((x_t EV_t C_t t_t) ...))))])
+
+
+(test-results)
+
+
+
+(define-metafunction STAN_E
+  constraints->update : σ -> σ
+  [(constraints->update ()) ()])
+
+;; exports
+(provide validateConstraint) ; won't be used but nice for unit testing
+(provide constraints->validate)
+(provide constraints->update)

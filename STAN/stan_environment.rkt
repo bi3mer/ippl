@@ -29,10 +29,24 @@
 
 ;; Find if a variable exists.
 (define-metafunction STAN
-  exists : ((x EV C t) ...) x -> boolean
-  [(exists () x) #f]
-  [(exists (_ ... (x EV C t) _ ...) x) #t]
-  [(exists (_ ... (x_any EV C t) _ ...) x) #f])
+  variableExists : ((x EV C t) ...) x -> boolean
+  [(variableExists () x) #f]
+  [(variableExists (_ ... (x EV C t) _ ...) x) #t]
+  [(variableExists (_ ... (x_any EV C t) _ ...) x) #f])
+
+;; update a number only if the type is correct
+(define-metafunction STAN_E
+  updateExistingNumber : σ x pv -> σ or "real number cannot be assigned to an integer"
+  [(updateExistingNumber σ x pv)
+   (updateVariable σ x pv)
+   (side-condition
+    (and
+     (eqv? (term (env->getType σ x)) (term i))
+     (integer? (term pv))))]
+  [(updateExistingNumber σ x pv)
+   (updateVariable σ x pv)
+   (side-condition (eqv? (term (env->getType σ x)) (term r)))]
+  [(updateExistingNumber σ x pv)  "real number cannot be assigned to an integer"])
 
 ;;;;;;;;;;;;;;;;; Public Functions ;;;;;;;;;;;;;;;;;
 ;; from the environment, retrieve the value for the given variable name.
@@ -56,7 +70,7 @@
   env->updateVar : σ x EV -> σ or "cannot update variable that does not exist"
   [(env->updateVar σ x EV)
    (updateVariable σ x EV)
-   (side-condition (term (exists σ x)))]
+   (side-condition (term (variableExists σ x)))]
   [(env->updateVar σ x EV) "cannot update variable that does not exist"])
 
 ;; create a variable if it does not already exists. If it does then no clause
@@ -65,8 +79,19 @@
   env->createVar : σ x EV C t -> σ or "cannot create variable that already exists"
   [(env->createVar σ x_1 EV_1 C_1 t_1)
    (addVariable σ x_1 EV_1 C_1 t_1)
-   (side-condition (not (term (exists σ x_1))))]
+   (side-condition (not (term (variableExists σ x_1))))]
   [(env->createVar  σ x_1 EV_1 C_1 t_1) "cannot create variable that already exists"])
+
+;; update a number if it already exists and the value is the correct type.
+;; An integer can be assigned to a real but not vise versa.
+(define-metafunction STAN_E
+  env->updateNumber : σ x pv -> σ or
+  "cannot update variable that does not exist" or
+  "real number cannot be assigned to an integer"
+  [(env->updateNumber σ x pv)
+   (updateExistingNumber σ x pv)
+   (side-condition (term (variableExists σ x)))]
+  [(env->updateNumber σ x pv) "cannot update variable that does not exist"])
 
 ;; exports
 (provide STAN_E)
@@ -75,3 +100,4 @@
 (provide env->getType)
 (provide env->updateVar)
 (provide env->createVar)
+(provide env->updateNumber)

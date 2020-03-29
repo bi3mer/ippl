@@ -39,7 +39,8 @@
   
   ;; primative values
   (int ::= integer)
-  (pv ::= int number)
+  (num ::= number)
+  (pv ::= int num)
 
   ;; vector
   (vec-type ::= v simplex ordered positive-ordered row-vector)

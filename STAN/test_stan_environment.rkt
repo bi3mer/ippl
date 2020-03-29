@@ -24,8 +24,21 @@
 (define uv3 (term (env->updateVar ,cv2 y (3.0 5.0))))
 (test-equal uv3 (term ((y (3.0 5.0) none v) (x 3.0 (upper = 0) r))))
 
-(define uv4 (term (env->updateVar ,uv3 z 3.0)))
-(test-equal uv4 "cannot update variable that does not exist")
+;; test env->updateNumber
+(define uvn1 (term (env->updateNumber ((x 3 none i)) x 10.01)))
+(test-equal uvn1 "real number cannot be assigned to an integer")
+
+(define uvn2 (term (env->updateNumber ((x 3 none r)) y 10.01)))
+(test-equal uvn2 "cannot update variable that does not exist")
+
+(define uvn3 (term (env->updateNumber ((x 3 none r)) x 10.01)))
+(test-equal uvn3 (term ((x 10.01 none r))))
+
+(define uvn4 (term (env->updateNumber ((x 3 none i)) x 10)))
+(test-equal uvn4 (term ((x 10 none i))))
+
+(define uvn5 (term (env->updateNumber ((x 3 none r)) x 10)))
+(test-equal uvn5 (term ((x 10 none r))))
 
 ;; test env->getType
 (test-equal (term (env->getType ,uv3 y)) (term v))

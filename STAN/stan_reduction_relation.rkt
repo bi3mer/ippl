@@ -21,10 +21,10 @@
         [(in-hole E skip) (env->createVar σ x (vector->init int) C vec-type)]
         assign-vec)
 
-   ; update variable
-   (--> [(in-hole E (x = pv)) σ]
-        [(in-hole E skip) (env->updateVar σ x pv)]
-        update-variable-number)
+   ; update integer variable
+   (--> [(in-hole E (x = PV)) σ]
+        [(in-hole E skip) (env->updateVarNum σ x)]
+        update-variable-int)
 
    ; get a variable
    (--> [(in-hole E x) σ]

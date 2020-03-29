@@ -29,7 +29,18 @@
   [(meta->vectorMathOperation vec_1 ./ vec_2) (vector->divide-vectors vec_1 vec_2)]
   [(meta->vectorMathOperation vec_1 .* vec_2) (vector->multiply-vectors vec_1 vec_2)])
 
+;; boolean functions. Vectors and matrices will not work with these.
+(define-metafunction STAN
+  meta->booleanOperators : pv MBO pv -> boolean
+  [(meta->booleanOperators pv_1 > pv_2) ,(> (term pv_1) (term pv_2))]
+  [(meta->booleanOperators pv_1 >= pv_2) ,(>= (term pv_1) (term pv_2))]
+  [(meta->booleanOperators pv_1 < pv_2) ,(< (term pv_1) (term pv_2))]
+  [(meta->booleanOperators pv_1 <= pv_2) ,(<= (term pv_1) (term pv_2))]
+  [(meta->booleanOperators pv_1 == pv_2) ,(eqv? (term pv_1) (term pv_2))]
+  [(meta->booleanOperators pv_1 != pv_2) ,(not (eqv? (term pv_1) (term pv_2)))])
+
 ;; exports
 (provide meta->vectorMathOperation)
 (provide meta->getEnvironment)
 (provide meta->mathOperation)
+(provide meta->booleanOperators)

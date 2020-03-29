@@ -75,7 +75,7 @@
   (AMO ::= .* ./)
 
   ;; Math Boolean Operators
-  (MBO ::= > >= <= <= == !=)
+  (MBO ::= > >= < <= == !=)
 
   ;; Operation Semantics
   (E ::=

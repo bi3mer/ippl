@@ -44,4 +44,27 @@
  (term (meta->vectorMathOperation (3.0 1.0 10.0 9.0) ./ (3.0 2.0 4.0 5.0)))
  (term (1.0 0.5 2.5 1.8)))
 
+;; meta->booleanOperators
+(test-equal (term (meta->booleanOperators 3 > 2)) #t)
+(test-equal (term (meta->booleanOperators 2 > 3)) #f)
+
+(test-equal (term (meta->booleanOperators 3 >= 2)) #t)
+(test-equal (term (meta->booleanOperators 2 >= 2)) #t)
+(test-equal (term (meta->booleanOperators 2 >= 3)) #f)
+
+(test-equal (term (meta->booleanOperators 3 < 2)) #f)
+(test-equal (term (meta->booleanOperators 2 < 3)) #t)
+
+(test-equal (term (meta->booleanOperators 1 <= 2)) #t)
+(test-equal (term (meta->booleanOperators 2 <= 2)) #t)
+(test-equal (term (meta->booleanOperators 4 <= 3)) #f)
+
+(test-equal (term (meta->booleanOperators 2 == 2)) #t)
+(test-equal (term (meta->booleanOperators 1 == 2)) #f)
+(test-equal (term (meta->booleanOperators 2 == 3)) #f)
+
+(test-equal (term (meta->booleanOperators 2 != 2)) #f)
+(test-equal (term (meta->booleanOperators 1 != 2)) #t)
+(test-equal (term (meta->booleanOperators 2 != 3)) #t)
+
 (test-results)

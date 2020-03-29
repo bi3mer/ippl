@@ -51,5 +51,12 @@
  gt4
  (term (((skip skip) "cannot update variable that does not exist"))))
 
+;; update vector value tests
+(define ucv (term (stan->run ((v 4 none y) (y [3] = 10)))))
+
+;; get value tests
+;; math tests
+;; vector math tests
+
 (test-results)
 

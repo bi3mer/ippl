@@ -9,16 +9,29 @@
 (test-equal (term (vector->init 5)) (term (0.0 0.0 0.0 0.0 0.0)))
 
 ;; test vector->size
-(test-equal (term (vector->size (vector->init 0))) 0)
-(test-equal (term (vector->size (vector->init 1))) 1)
-(test-equal (term (vector->size (vector->init 42))) 42)
+(test-equal (term (vector->size (vector->init 0))) 1)
+(test-equal (term (vector->size (vector->init 1))) 2)
+(test-equal (term (vector->size (vector->init 42))) 43)
 
 ;; test vector->get
 ;; the two commented out cases will show that an exception is thrown.
 (test-equal (term (vector->get (1 2 3 4) 1)) 1)
 (test-equal (term (vector->get (1 2 3 4) 2)) 2)
-;(test-equal (term (vector->get (1 2 3 4) -1)) -1)
-;(test-equal (term (vector->get (1 2 3 4) 5)) -1)
+(test-equal (term (vector->get (1 2 3 4) -1)) "index out of bounds")
+(test-equal (term (vector->get (1 2 3 4) 5)) "index out of bounds")
+
+;; test vector->set
+(define vs1 (term (vector->set (1 2 3 4) 1 3)))
+(test-equal vs1 (term (3 2 3 4)))
+
+(define vs2 (term (vector->set (1 2 3 4) 4 10)))
+(test-equal vs2 (term (1 2 3 10)))
+
+(define vs3 (term (vector->set (1 2 3 4) 5 3)))
+(test-equal vs3 "index out of bounds")
+
+(define vs4 (term (vector->set (1 2 3 4) 0 3)))
+(test-equal vs4 "index out of bounds")
 
 ;; test vector->add-const
 (test-equal (term (vector->add-const (0) 1)) (term (1)))

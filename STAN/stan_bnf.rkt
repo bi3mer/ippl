@@ -38,6 +38,7 @@
      (s ...)) ;; (for(x in e : e) s) ((for x in e) s) (if e s then s) 
   
   ;; primative values
+  (error ::= string)
   (int ::= integer)
   (num ::= number)
   (pv ::= int num)

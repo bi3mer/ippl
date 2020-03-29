@@ -22,8 +22,8 @@
         assign-vec)
 
    ; update integer variable
-   (--> [(in-hole E (x = PV)) σ]
-        [(in-hole E skip) (env->updateVarNum σ x)]
+   (--> [(in-hole E (x = pv)) σ]
+        [(in-hole E skip) (env->updateNumber σ x pv)]
         update-variable-int)
 
    ; get a variable

@@ -41,11 +41,15 @@
  (term (meta->getEnvironment ,gt2))
  (term ((x 4.0 none r))))
 
-; this needs to be an error!
-(define gt3 (term (stan->run ((i none x) (x = 4.12)))))
+(define gt3 (apply-reduction-relation* stan_r (term (((i none x) (x = 4.12)) ()))))
 (test-equal
- (term (meta->getEnvironment ,gt3))
- (term ((x 4.12 none i))))
+ gt3
+ (term (((skip skip) "real number cannot be assigned to an integer"))))
+
+(define gt4 (apply-reduction-relation* stan_r (term (((i none x) (y = 4.12)) ()))))
+(test-equal
+ gt4
+ (term (((skip skip) "cannot update variable that does not exist"))))
 
 (test-results)
 

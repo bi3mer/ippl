@@ -25,6 +25,7 @@
   [(meta->vectorMathOperation vec_1 ./ vec_2) (vector->divide-vectors vec_1 vec_2)]
   [(meta->vectorMathOperation vec_1 .* vec_2) (vector->multiply-vectors vec_1 vec_2)])
 
+;; exports
+(provide meta->vectorMathOperation)
 (provide meta->getEnvironment)
 (provide meta->mathOperation)
-(provide meta->vectorMathOperation)

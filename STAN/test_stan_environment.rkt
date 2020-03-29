@@ -67,6 +67,10 @@
 
 (test-equal
  (term (env->updateVectorValue ((x (3 0 1 1) none v)) x 0 1.12))
- (term ((x (1.12 0 1 1) none v))))
+ "index out of bounds")
+
+(test-equal
+ (term (env->updateVectorValue ((x (3 0 1 1) none v)) x 5 1.12))
+ "index out of bounds")
 
 (test-results)

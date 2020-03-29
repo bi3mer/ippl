@@ -112,8 +112,9 @@
     (or
      (eqv? (term (env->getType σ x)) (term i))
      (eqv? (term (env->getType σ x)) (term r))))]
-  [(env->updateVector  σ x int pv)
+  [(env->updateVectorValue  σ x int pv)
    "index out of bounds"
+   (side-condition (term (vector->outOfBounds (env->getValue σ x) int)))]
   [(env->updateVectorValue σ x int pv)
    (env->updateVar σ x (vector->set (env->getValue σ x) int pv))])
 

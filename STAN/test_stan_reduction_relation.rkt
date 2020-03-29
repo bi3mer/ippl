@@ -137,13 +137,17 @@
 (test-equal (term (env->getValue ,vmt2_env y)) (term (0.0 2.0 0.0 0.0)))
 (test-equal (term (env->getValue ,vmt2_env x)) (term (0.0 10.0 0.0 0.0)))
 
-
 (define vmt_3_program (term ((v 4 none x)
                              (x [2] = 3.0)
                              (v 5 none y)
                              (y [2] = 10.0)
                              (y = (x .* y)))))
 (define vmt3 (apply-reduction-relation* stan_r (term (,vmt_3_program ()))))
+(test-equal
+ vmt3
+ (term
+  (((skip skip skip skip (y = "vectors must be of the same size"))
+    ((y (0.0 10.0 0.0 0.0 0.0) none v) (x (0.0 3.0 0.0 0.0) none v))))))
 
 (test-results)
 

@@ -21,7 +21,7 @@
 
 ;; math operations for stan with vectors
 (define-metafunction STAN
-  meta->vectorMathOperation : vec AMO vec -> vec
+  meta->vectorMathOperation : vec AMO vec -> vec or "vectors must be of the same size"
   [(meta->vectorMathOperation vec_1 ./ vec_2) (vector->divide-vectors vec_1 vec_2)]
   [(meta->vectorMathOperation vec_1 .* vec_2) (vector->multiply-vectors vec_1 vec_2)])
 

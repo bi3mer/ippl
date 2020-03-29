@@ -105,12 +105,13 @@
      (term (vector->add-vectors-private (number_1_rest ...) (number_2_rest ...))))])
 
 (define-metafunction STAN
-  vector->add-vectors : vec vec -> vec
+  vector->add-vectors : vec vec -> vec or "vectors must be of the same size"
   [(vector->add-vectors vec_1 vec_2)
-   (vector->add-vectors-private vec_1 vec_2)
-   (side-condition (equal?
+   "vectors must be of the same size"
+   (side-condition (not (equal?
                     (term (vector->size vec_1))
-                    (term (vector->size vec_2))))])
+                    (term (vector->size vec_2)))))]
+  [(vector->add-vectors vec_1 vec_2) (vector->add-vectors-private vec_1 vec_2)])
 
 ;; subtract arrays to build a new one. 
 (define-metafunction STAN
@@ -123,16 +124,18 @@
      (term (vector->subtract-vectors-private (number_1_rest ...) (number_2_rest ...))))])
 
 (define-metafunction STAN
-  vector->subtract-vectors : vec vec -> vec
+  vector->subtract-vectors : vec vec -> vec or "vectors must be of the same size"
   [(vector->subtract-vectors vec_1 vec_2)
-   (vector->subtract-vectors-private vec_1 vec_2)
-   (side-condition (equal?
+   "vectors must be of the same size"
+   (side-condition (not (equal?
                     (term (vector->size vec_1))
-                    (term (vector->size vec_2))))])
+                    (term (vector->size vec_2)))))]
+  [(vector->subtract-vectors vec_1 vec_2)
+   (vector->subtract-vectors-private vec_1 vec_2)])
 
 ;; multiply arrays to build a new one
 (define-metafunction STAN
-  vector->multiply-vectors-private : vec vec -> vec
+  vector->multiply-vectors-private : vec vec -> vec  
   [(vector->multiply-vectors-private () ()) ()]
   [(vector->multiply-vectors-private (number_1 number_1_rest ...) (number_2 number_2_rest ...))
    ,(cons
@@ -140,16 +143,18 @@
      (term (vector->multiply-vectors-private (number_1_rest ...) (number_2_rest ...))))])
 
 (define-metafunction STAN
-  vector->multiply-vectors : vec vec -> vec
+  vector->multiply-vectors : vec vec -> vec or "vectors must be of the same size"
   [(vector->multiply-vectors vec_1 vec_2)
-   (vector->multiply-vectors-private vec_1 vec_2)
-   (side-condition (equal?
+   "vectors must be of the same size"
+   (side-condition (not (equal?
                     (term (vector->size vec_1))
-                    (term (vector->size vec_2))))])
+                    (term (vector->size vec_2)))))]
+  [(vector->multiply-vectors vec_1 vec_2)
+   (vector->multiply-vectors-private vec_1 vec_2)])
 
 ;; divide arrays to build a new one
 (define-metafunction STAN
-  vector->divide-vectors-private : vec vec -> vec
+  vector->divide-vectors-private : vec vec -> vec  
   [(vector->divide-vectors-private () ()) ()]
   [(vector->divide-vectors-private (number_1 number_1_rest ...) (number_2 number_2_rest ...))
    ,(cons
@@ -157,12 +162,14 @@
      (term (vector->divide-vectors-private (number_1_rest ...) (number_2_rest ...))))])
 
 (define-metafunction STAN
-  vector->divide-vectors : vec vec -> vec
+  vector->divide-vectors : vec vec -> vec or "vectors must be of the same size"
   [(vector->divide-vectors vec_1 vec_2)
-   (vector->divide-vectors-private vec_1 vec_2)
-   (side-condition (equal?
+    "vectors must be of the same size"
+   (side-condition (not (equal?
                     (term (vector->size vec_1))
-                    (term (vector->size vec_2))))])
+                    (term (vector->size vec_2)))))]
+  [(vector->divide-vectors vec_1 vec_2)
+   (vector->divide-vectors-private vec_1 vec_2)])
 
 ;; exports
 (provide vector->init)

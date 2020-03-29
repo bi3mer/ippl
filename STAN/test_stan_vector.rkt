@@ -58,28 +58,28 @@
 (test-equal (term (vector->divide-const (0.0 1.0 2.0 3.0) 2)) (term (0.0 0.5 1.0 1.5)))
 (test-equal (term (vector->divide-const (0.0 1.0 2.0 3.0) -1)) (term (-0.0 -1.0 -2.0 -3.0)))
 
-;; test vector->add-vectors. Size constraints are not tested because errors are
-;; thrown instead.
+;; test vector->add-vectors.
 (test-equal (term (vector->add-vectors () ())) (term ()))
 (test-equal (term (vector->add-vectors (1) (1))) (term (2)))
 (test-equal (term (vector->add-vectors (1 2 3 4) (1 1 1 1))) (term (2 3 4 5)))
+(test-equal (term (vector->add-vectors (1) (1 2))) "vectors must be of the same size")
 
-;; test vector->subtract-vectors. Size constraints are not tested because errors are
-;; thrown instead.
+;; test vector->subtract-vectors.
 (test-equal (term (vector->subtract-vectors () ())) (term ()))
 (test-equal (term (vector->subtract-vectors (1) (1))) (term (0)))
 (test-equal (term (vector->subtract-vectors (1 2 3 4) (1 1 1 2))) (term (0 1 2 2)))
+(test-equal (term (vector->subtract-vectors (1) (1 2))) "vectors must be of the same size")
 
-;; test vector->multiply-vectors. Size constraints are not tested because errors are
-;; thrown instead.
+;; test vector->multiply-vectors.
 (test-equal (term (vector->multiply-vectors () ())) (term ()))
 (test-equal (term (vector->multiply-vectors (1) (1))) (term (1)))
 (test-equal (term (vector->multiply-vectors (1 2 3 4) (1 1 1 2))) (term (1 2 3 8)))
+(test-equal (term (vector->multiply-vectors (1) (1 2))) "vectors must be of the same size")
 
-;; test vector->divide-vectors. Size constraints are not tested because errors are
-;; thrown instead.
+;; test vector->divide-vectors. 
 (test-equal (term (vector->divide-vectors () ())) (term ()))
 (test-equal (term (vector->divide-vectors (1) (1))) (term (1)))
 (test-equal (term (vector->divide-vectors (1.0 2.0 3.0 4.0) (1.0 1.0 2.0 2.0))) (term (1.0 2.0 1.5 2.0)))
+(test-equal (term (vector->divide-vectors (1) (1 2))) "vectors must be of the same size")
 
 (test-results)

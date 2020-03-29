@@ -1,8 +1,10 @@
 #lang racket
 (require redex)
 (require "stan_bnf.rkt")
+(require "stan_environment.rkt")
 (require "stan_metafunctions.rkt")
 (require "stan_reduction_relation.rkt")
+
 
 ;; create variable tests
 (define ct1 (term (stan->run (i none x))))
@@ -114,10 +116,34 @@
 ;; vector math tests
 (define vmt
   (term (stan->run ((v 4 none x)
-                    (x [2] = 3)
+                    (x [2] = 3.0)
                     (v 4 none y)
-                    (y [2] = 10)
+                    (y [2] = 10.0)
                     (y = (x .* y))))))
+(define vmt_env (term (meta->getEnvironment ,vmt)))
+(test-equal (term (env->getValue ,vmt_env y)) (term (0.0 30.0 0.0 0.0)))
+(test-equal (term (env->getValue ,vmt_env x)) (term (0.0 3.0 0.0 0.0)))
+
+(define vmt2
+  (term (stan->run ((v 4 none x)
+                    (x [2] = 10.0)
+                    (v 4 none y)
+                    (y [1] = 1.0)
+                    (y [2] = 5.0)
+                    (y [3] = 1.0)
+                    (y [4] = 1.0)
+                    (y = (x ./ y))))))
+(define vmt2_env (term (meta->getEnvironment ,vmt2)))
+(test-equal (term (env->getValue ,vmt2_env y)) (term (0.0 2.0 0.0 0.0)))
+(test-equal (term (env->getValue ,vmt2_env x)) (term (0.0 10.0 0.0 0.0)))
+
+
+(define vmt_3_program (term ((v 4 none x)
+                             (x [2] = 3.0)
+                             (v 5 none y)
+                             (y [2] = 10.0)
+                             (y = (x .* y)))))
+(define vmt3 (apply-reduction-relation* stan_r (term (,vmt_3_program ()))))
 
 (test-results)
 

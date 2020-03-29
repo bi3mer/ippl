@@ -29,8 +29,8 @@
 
    ; update variable value for a vector
    (--> [(in-hole E (x = vec)) σ]
-        [(in-hole E skip) (env->updateNumber σ x vec)]
-        update-variable-int-or-num)
+        [(in-hole E skip) (env->updateVector σ x vec)]
+        update-variable-vector)
 
    ; update vector value
    (--> [(in-hole E (x [int] = pv)) σ]

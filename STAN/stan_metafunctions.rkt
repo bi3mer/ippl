@@ -9,12 +9,16 @@
   meta->getEnvironment : (s σ) -> σ
   [(meta->getEnvironment (s σ)) σ])
 
-;; math operations for stan with reals and integers
+;; math operations for stan with reals and integers. Stan beahvior for divide by
+;; 0 is undefined.
 (define-metafunction STAN
-  meta->mathOperation : pv MO pv -> pv
+  meta->mathOperation : pv MO pv -> pv or "cannot divide by zero"
   [(meta->mathOperation pv_1 + pv_2) ,(+ (term pv_1) (term pv_2))]
   [(meta->mathOperation pv_1 - pv_2) ,(- (term pv_1) (term pv_2))]
   [(meta->mathOperation pv_1 * pv_2) ,(* (term pv_1) (term pv_2))]
+  [(meta->mathOperation pv_1 / pv_2)
+   "cannot divide by zero"
+   (side-condition (or (eqv? (term pv_2) 0) (eqv? (term pv_2) 0.0)))]
   [(meta->mathOperation pv_1 / pv_2) ,(/ (term pv_1) (term pv_2))]
   [(meta->mathOperation pv_1 ^ pv_2) ,(expt (term pv_1) (term pv_2))]
   [(meta->mathOperation pv_1 % pv_2) ,(modulo (term pv_1) (term pv_2))])

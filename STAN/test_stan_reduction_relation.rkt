@@ -98,8 +98,11 @@
 (define mt2 (term (stan->run ((r none x) (x = (x - 3.1)))) ))
 (test-equal (term (meta->getEnvironment ,mt2)) (term ((x -3.1 none r))))
 
-(define mt3 (term (stan->run ((r none x) (x = (x / 3)))) ))
-(test-equal (term (meta->getEnvironment ,mt3)) (term ((x 0.0 none r))))
+(define mt3_1 (term (stan->run ((r none x) (x = (x / 3)))) ))
+(test-equal (term (meta->getEnvironment ,mt3_1)) (term ((x 0.0 none r))))
+
+(define mt3_2 (apply-reduction-relation* stan_r (term (((r none x) (x = (3.0 / x))) ()))))
+(test-equal mt3_2 (term (((skip (x = "cannot divide by zero")) ((x 0.0 none r))))))
 
 (define mt4 (term (stan->run ((r none x) (x = (x * 3)))) ))
 (test-equal (term (meta->getEnvironment ,mt4)) (term ((x 0.0 none r))))

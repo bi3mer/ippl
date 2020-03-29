@@ -19,6 +19,8 @@
 ; division
 (test-equal (term (meta->mathOperation 4 / 2)) (term 2))
 (test-equal (term (meta->mathOperation 3.0 / 2.0)) (term 1.5))
+(test-equal (term (meta->mathOperation 3.0 / 0)) "cannot divide by zero")
+(test-equal (term (meta->mathOperation 3.0 / 0.0)) "cannot divide by zero")
 
 ; exponents
 (test-equal (term (meta->mathOperation 3 ^ 2)) (term 9))

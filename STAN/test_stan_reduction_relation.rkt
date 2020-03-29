@@ -52,7 +52,20 @@
  (term (((skip skip) "cannot update variable that does not exist"))))
 
 ;; update vector value tests
-(define ucv (term (stan->run ((v 4 none y) (y [3] = 10)))))
+(define ucv (term (stan->run ((v 4 none y) (y [3] = 10.0)))))
+(test-equal
+ (term (meta->getEnvironment ,ucv))
+ (term ((y (0.0 0.0 10.0 0.0) none v))))
+
+(define ucv1 (apply-reduction-relation* stan_r (term (((v 4 none y) (y [-1] = 10.0)) ()))))
+(test-equal
+ ucv1
+ (term (((skip skip) "index out of bounds"))))
+
+(define ucv2 (apply-reduction-relation* stan_r (term (((v 4 none y) (y [5] = 10.0)) ()))))
+(test-equal
+ ucv2
+ (term (((skip skip) "index out of bounds"))))
 
 ;; get value tests
 ;; math tests

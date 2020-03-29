@@ -52,4 +52,21 @@
 (test-equal (term (env->getValue ,uv3 y)) (term (3.0 5.0)))
 (test-equal (term (env->getValue ,uv3 x)) (term 3.0))
 
+;; test env->updateVectorValue
+(test-equal
+ (term (env->updateVectorValue () x 3 3))
+ "variable not found")
+
+(test-equal
+ (term (env->updateVectorValue ((x 3 none r)) x 3 3))
+ "cannot index a number")
+
+(test-equal
+ (term (env->updateVectorValue ((x (3 0 1 1) none v)) x 1 1.12))
+ (term ((x (1.12 0 1 1) none v))))
+
+(test-equal
+ (term (env->updateVectorValue ((x (3 0 1 1) none v)) x 0 1.12))
+ (term ((x (1.12 0 1 1) none v))))
+
 (test-results)

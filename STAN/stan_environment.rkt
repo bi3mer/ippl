@@ -1,6 +1,7 @@
 #lang racket
 (require redex)
 (require "stan_bnf.rkt")
+(require "stan_vector.rkt")
 
 ;; extended Stan language to contain an environment for variables. Made public.
 (define-extended-language STAN_E STAN
@@ -93,6 +94,29 @@
    (side-condition (term (variableExists σ x)))]
   [(env->updateNumber σ x pv) "cannot update variable that does not exist"])
 
+;; update a vector value given the variable name, index, and value. I'm not
+;; happy with how I ended up handling checking for types. I'm also not happy
+;; with how I handled propogating the error. I'm sure there is a better way
+;; but I couldn't figure it out in a reasonable time.
+(define-metafunction STAN_E
+  env->updateVectorValue : σ x int pv -> σ
+  or "variable not found"
+  or "cannot index a number"
+  or "index out of bounds"
+  [(env->updateVectorValue σ x int pv)
+   "variable not found"
+   (side-condition (not (term (variableExists σ x))))]
+  [(env->updateVectorValue σ x int pv)
+   "cannot index a number"
+   (side-condition
+    (or
+     (eqv? (term (env->getType σ x)) (term i))
+     (eqv? (term (env->getType σ x)) (term r))))]
+  [(env->updateVector  σ x int pv)
+   "index out of bounds"
+  [(env->updateVectorValue σ x int pv)
+   (env->updateVar σ x (vector->set (env->getValue σ x) int pv))])
+
 ;; exports
 (provide STAN_E)
 (provide env->getValue)
@@ -101,3 +125,4 @@
 (provide env->updateVar)
 (provide env->createVar)
 (provide env->updateNumber)
+(provide env->updateVectorValue)

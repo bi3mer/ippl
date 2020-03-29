@@ -32,6 +32,14 @@
   [(vector->get (number number_rest ...) int)
    (vector->get (number_rest ...) ,(- (term int) 1))])
 
+;; Returns true if the index is in the bounds of the vector else false.
+(define-metafunction STAN
+   vector->outOfBounds : (number ...) int -> boolean
+  [(vector->outOfBounds (number ...) int)
+   ,(or
+     (< (term int) 1)
+     (>= (term int) (term (vector->size (number ...)))))])
+
 ;; given an index, set the value to that index or return an error. It is again
 ;; 1 indexed and it still hurts me.
 (define-metafunction STAN
@@ -46,10 +54,7 @@
   vector->set : (number ...) int pv -> (number ...) or "index out of bounds"
   [(vector->set (number ...) int number_1)
    "index out of bounds"
-   (side-condition
-    (or
-     (< (term int) 1)
-     (>= (term int) (term (vector->size (number ...))))))]
+   (side-condition (term (vector->outOfBounds (number ...) int)))]
   [(vector->set (number_h ...) int number) (set (number_h ...) int number)])
 
 (define vs4 (term (vector->set (1 2 3 4) -1 3)))
@@ -163,6 +168,7 @@
 (provide vector->init)
 (provide vector->size)
 (provide vector->get)
+(provide vector->outOfBounds)
 (provide vector->set)
 (provide vector->add-const)
 (provide vector->subtract-const)

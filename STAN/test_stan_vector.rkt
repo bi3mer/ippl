@@ -20,6 +20,11 @@
 (test-equal (term (vector->get (1 2 3 4) -1)) "index out of bounds")
 (test-equal (term (vector->get (1 2 3 4) 5)) "index out of bounds")
 
+;; test vector->outOfBounds
+(test-equal (term (vector->outOfBounds (1 2 3 4) 4)) #f)
+(test-equal (term (vector->outOfBounds (1 2 3 4) 5)) #t)
+(test-equal (term (vector->outOfBounds (1 2 3 4) 0)) #t)
+
 ;; test vector->set
 (define vs1 (term (vector->set (1 2 3 4) 1 3)))
 (test-equal vs1 (term (3 2 3 4)))

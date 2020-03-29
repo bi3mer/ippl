@@ -28,7 +28,7 @@
 
    ; update vector value
    (--> [(in-hole E (x [int] = pv)) σ]
-        [(in-hole E skip) "not implemented yet"] 
+        [(in-hole E skip) env->updateVectorValue σ x int pv] 
         update-vector-variable-value)
 
    ; get a variable

@@ -3,6 +3,7 @@
 (require "stan_bnf.rkt")
 (require "stan_vector.rkt")
 (require "stan_environment.rkt")
+(require "stan_metafunctions.rkt")
 
 (define stan_r
   (reduction-relation

@@ -87,6 +87,27 @@
  (term (((skip (x (1) = "index out of bounds")) ((x (0.0 0.0 0.0 0.0) none v))))))
 
 ;; math tests
+(define mt (term (stan->run ((r none x) (x = (3.0 + 3.1)))) ))
+(test-equal (term (meta->getEnvironment ,mt)) (term ((x 6.1 none r))))
+
+(define mt1 (term (stan->run ((r none x) (x = (3.1 + x)))) ))
+(test-equal (term (meta->getEnvironment ,mt1)) (term ((x 3.1 none r))))
+
+(define mt2 (term (stan->run ((r none x) (x = (x - 3.1)))) ))
+(test-equal (term (meta->getEnvironment ,mt2)) (term ((x -3.1 none r))))
+
+(define mt3 (term (stan->run ((r none x) (x = (x / 3)))) ))
+(test-equal (term (meta->getEnvironment ,mt3)) (term ((x 0.0 none r))))
+
+(define mt4 (term (stan->run ((r none x) (x = (x * 3)))) ))
+(test-equal (term (meta->getEnvironment ,mt4)) (term ((x 0.0 none r))))
+
+(define mt5 (term (stan->run ((r none x) (x = 3.0) (x = (x % 2.0)))) ))
+(test-equal (term (meta->getEnvironment ,mt5)) (term ((x 1.0 none r))))
+
+(define mt6 (term (stan->run ((r none x) (x = (2.0 ^ 3.0)))) ))
+(test-equal (term (meta->getEnvironment ,mt6)) (term ((x 8.0 none r))))
+
 ;; vector math tests
 
 (test-results)

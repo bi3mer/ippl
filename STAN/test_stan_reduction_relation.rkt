@@ -68,6 +68,24 @@
  (term (((skip skip) "index out of bounds"))))
 
 ;; get value tests
+(define gvt (term (stan->run ((r none x) (x = 3.0) (r none y) (y = x)))))
+(test-equal
+ (term (meta->getEnvironment ,gvt))
+ (term ((y 3.0 none r) (x 3.0 none r))))
+
+(define gvt2 (term (stan->run ((v 4 none x) (x [1] = 3.0) (r none y) (y = (x[1]))))))
+(test-equal
+ (term (meta->getEnvironment ,gvt2))
+ (term ((y 3.0 none r) (x (3.0 0.0 0.0 0.0) none v))))
+
+(test-equal
+ (apply-reduction-relation* stan_r (term (((v 4 none x) (x [1] = (x [5]))) () )))
+ (term (((skip (x (1) = "index out of bounds")) ((x (0.0 0.0 0.0 0.0) none v))))))
+
+(test-equal
+ (apply-reduction-relation* stan_r (term (((v 4 none x) (x [1] = (x [0]))) () )))
+ (term (((skip (x (1) = "index out of bounds")) ((x (0.0 0.0 0.0 0.0) none v))))))
+
 ;; math tests
 ;; vector math tests
 

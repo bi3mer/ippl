@@ -33,8 +33,13 @@
 
    ; get a variable
    (--> [(in-hole E x) σ]
-       [(in-hole E (lookup σ x)) σ]
-       findVar)
+       [(in-hole E (env->getValue σ x)) σ]
+       get-value)
+
+   ;; index a vector
+   (--> [(in-hole E (vec (int))) σ]
+        [(in-hole E (vector->get vec int)) σ]
+        index-vector)
 
    ;; math operations
    ; real and ints

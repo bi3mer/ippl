@@ -81,7 +81,11 @@
   (E ::=
      hole
      (skip ... E s ...)
+     (E [e])
+     (vec [E])
      (x = E)
+     (x [E] = e)
+     (x [int] = E)
      (E MO e)
      (pv MO E)
      (- E)

@@ -27,7 +27,7 @@
 
 ;;;; Stan language
 (define-language STAN
-  (e ::= pv x (e ...) (e [e]) (e MO e) (e AMO e) (- e)) ;; 
+  (e ::= pv bool x (e ...) (e [e]) (e MO e) (e AMO e) (e MBO e) (- e)) ;; 
   (s ::=
      skip
      (i C x)
@@ -35,13 +35,15 @@
      (vec-type int C x)
      (x = e)
      (x [ e ... ] = e)
-     (s ...)) ;; (for(x in e : e) s) ((for x in e) s) (if e s then s) 
+     (s ...)
+     (if e then s else s)) ;; (for(x in e : e) s) ((for x in e) s) 
   
   ;; primative values
   (error ::= string)
   (int ::= integer)
   (num ::= number)
   (pv ::= int num)
+  (bool = boolean)
 
   ;; vector
   (vec-type ::= v simplex ordered positive-ordered row-vector unit-vector)
@@ -90,7 +92,10 @@
      (pv MO E)
      (- E)
      (E AMO e)
-     (vec AMO E))
+     (vec AMO E)
+     (E MBO e)
+     (pv MBO E)
+     (if E then s else s))
 
   ;; variable
   (x ::= variable-not-otherwise-mentioned))

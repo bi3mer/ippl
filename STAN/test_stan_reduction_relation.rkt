@@ -5,7 +5,6 @@
 (require "stan_metafunctions.rkt")
 (require "stan_reduction_relation.rkt")
 
-
 ;; create variable tests
 (define ct1 (term (stan->run (i (none) x))))
 (test-equal
@@ -151,6 +150,17 @@
  (term
   (((skip skip skip skip (y = "vectors must be of the same size"))
     ((y (0.0 10.0 0.0 0.0 0.0) (none) v) (x (0.0 3.0 0.0 0.0) (none) v))))))
+
+;; test if statement
+(define if1 (term (stan->run ((i (none) x) (if (3 > 2) then (x = 1) else (x = 2))))))
+(test-equal (term (meta->getEnvironment ,if1)) (term ((x 1 (none) i))))
+
+(define if2 (term (stan->run ((i (none) x) (if (x >= (1 + 3)) then (x = 1) else (x = 2))))))
+(test-equal (term (meta->getEnvironment ,if2)) (term ((x 2 (none) i))))
+
+;; test for statements
+
+;; test foreach statements
 
 (test-results)
 

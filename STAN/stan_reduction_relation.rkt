@@ -62,10 +62,25 @@
         [(in-hole E (meta->vectorMathOperation vec_1 AMO vec_2)) σ]
         vector-math-operation)
 
-   ;; for
+   ;; boolean math
+   (--> [(in-hole E (pv_1 MBO pv_2)) σ]
+        [(in-hole E (meta->booleanOperators pv_1 MBO pv_2)) σ]
+        boolean-operator)
 
    ;; if
+   (-->[(in-hole E (if #t then e_1 else e_2)) σ]
+       [(in-hole E e_1) σ]
+       if-true)
+   
+   (-->[(in-hole E (if #f then e_1 else e_2)) σ]
+       [(in-hole E e_2) σ]
+       if-false)
+
+   ;; for
+
+   ;; foreach
    ))
+
 
 (define-metafunction STAN_E
   stan->simplifyOut : ((s σ)) -> (s σ)

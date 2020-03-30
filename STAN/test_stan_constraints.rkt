@@ -104,5 +104,23 @@
 
 ;; simplex constraint tests
 
+;; ordered positive tests
+(test-equal
+ (term (validateConstraint x (3 1 2) ((none)) positive-ordered))
+ (term
+  ((x "vector is not positive ordered")
+   (((x "no error")) ((x "no error")) ((x "no error"))))))
+
+(test-equal
+ (term (validateConstraint x (-10 0 100) ((none)) positive-ordered))
+ (term
+  ((x "vector is not positive ordered")
+   (((x "no error")) ((x "no error")) ((x "no error"))))))
+
+(test-equal
+ (term (validateConstraint x (1 2 100) ((none)) positive-ordered))
+ (term
+  ((x "vector is positive ordered")
+   (((x "no error")) ((x "no error")) ((x "no error"))))))
 
 (test-results)

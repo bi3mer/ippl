@@ -68,16 +68,25 @@
         boolean-operator)
 
    ;; if
-   (-->[(in-hole E (if #t then e_1 else e_2)) σ]
-       [(in-hole E e_1) σ]
+   (-->[(in-hole E (if #t then s_1 else s_2)) σ]
+       [(in-hole E s_1) σ]
        if-true)
    
-   (-->[(in-hole E (if #f then e_1 else e_2)) σ]
-       [(in-hole E e_2) σ]
+   (-->[(in-hole E (if #f then s_1 else s_2)) σ]
+       [(in-hole E s_2) σ]
        if-false)
 
    ;; for
-
+    (-->[(in-hole E (for x in int_1 : int_2 do s)) σ]
+       [(in-hole E
+                 (if (int_1 <= int_2)
+                     then
+                      (s (for x in ,(+ 1 (term int_1)) : int_2 do s))
+                     else
+                      skip))
+        (env->updateNumber σ x int_1)]
+       for-loop)
+    
    ;; foreach
    ))
 

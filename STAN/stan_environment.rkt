@@ -16,16 +16,19 @@
    ((x EV C t) (x_1 EV_1 C_1 t_1) ...)])
 
 ;; Update the value of a variable. If this is being called then
-;; the variable ahs already been checked and shown to exist.
+;; the variable has already been shown to exist.
 (define-metafunction STAN
   updateVariable : ((x EV C t) ...) x EV -> ((x EV C t) ...)
+  ; case where we are on the last variable so they must be equivalent
+  ;[(updateVariable ((x_h EV_h C_h t_h)) x EV) ((x_h EV C_h t_h))]
+  
   ; update variable since it was found
   [(updateVariable ((x_h EV_h C_h t_h) (x_r EV_r C_r t_r) ...) x EV)
    ((x_h EV C_h t_h) (x_r EV_r C_r t_r) ...)
    (side-condition (eqv? (term x_h) (term x)))]
   
   ; variable not found so keep looking
-  [(updateVariable ((x_h E_h C_h t_h) (x_r EV_r C_r t_r) ...) x EV)
+  [(updateVariable ((x_h EV_h C_h t_h) (x_r EV_r C_r t_r) ...) x EV)
    ,(cons (term (x_h EV_h C_h t_h)) (term (updateVariable ((x_r EV_r C_r t_r) ...) x EV)))])
 
 ;; Find if a variable exists.

@@ -158,9 +158,24 @@
 (define if2 (term (stan->run ((i (none) x) (if (x >= (1 + 3)) then (x = 1) else (x = 2))))))
 (test-equal (term (meta->getEnvironment ,if2)) (term ((x 2 (none) i))))
 
-;; test for statements
+(define if3 (term (stan->run ((i (none) x) (if #t then (x = 1) else (x = 2))))))
+(test-equal (term (meta->getEnvironment ,if3)) (term ((x 1 (none) i))))
 
-;; test foreach statements
+(define if4 (term (stan->run ((i (none) x) (if #f then (x = 1) else (x = 2))))))
+(test-equal (term (meta->getEnvironment ,if4)) (term ((x 2 (none) i))))
+
+;; test for statement. Inclusive so 10 is run but 11 is not.
+(define for (term ((i (none) x) (i (none) y) (for x in 1 : 10 do (y = (y + x))))))
+(define for_run (term (stan->run ,for)))
+(test-equal
+ (term (meta->getEnvironment ,for_run))
+ (term ((y 55 (none) i) (x 11 (none) i))))
+
+(define for2 (term ((i (none) x) (i (none) y) (for x in (0 + 1) : (9 + 1) do (y = (y + x))))))
+(define for2_run (term (stan->run ,for2)))
+(test-equal
+ (term (meta->getEnvironment ,for2_run))
+ (term ((y 55 (none) i) (x 11 (none) i))))
 
 (test-results)
 

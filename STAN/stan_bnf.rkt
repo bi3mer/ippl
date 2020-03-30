@@ -36,7 +36,8 @@
      (x = e)
      (x [ e ... ] = e)
      (s ...)
-     (if e then s else s)) ;; (for(x in e : e) s) ((for x in e) s) 
+     (if e then s else s)
+     (for x in e : e do s)) ;;  ((for x in e) s) 
   
   ;; primative values
   (error ::= string)
@@ -94,7 +95,9 @@
      (vec AMO E)
      (E MBO e)
      (pv MBO E)
-     (if E then s else s))
+     (if E then s else s)
+     (for x in E : e do s)
+     (for x in int : E do s))
 
   ;; variable
   (x ::= variable-not-otherwise-mentioned))

@@ -242,11 +242,11 @@
      (equal? (term (vector->magnitude vec)) 1)))]
   [(vector->unitVector vec) "vector is not a unit vector"])
 
-;; still not sure on this one
+;; I can't find any clear documentation on how to implement this and am leaving
+;; it blank. May change depending on meeting later in the week.
 (define-metafunction STAN
   vector->simplex : vec -> "vector is simplex" or "vector is not simplex" or "not implemented"
   [(vector->simplex vec) "not implemented"])
-
 
 ;; exports
 (provide vector->init)

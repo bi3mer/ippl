@@ -3,11 +3,12 @@
 (require "stan_bnf.rkt")
 (require "stan_environment.rkt")
 
+;; return list for each constraint and if the error occurred
 (define-metafunction STAN_E
   validateNumberConstraints : x EV C -> ((x error) ...)
   [(validateNumberConstraints x EV ()) ()]
   ;; none constraint
-  [(validateNumberConstraints x EV (none C_rest ...))
+  [(validateNumberConstraints x EV ((none) C_rest ...))
    ,(cons (term (x "no error")) (term (validateNumberConstraints x EV (C_rest ...))))]
   ;; upper constraint when side condition for upper met
   [(validateNumberConstraints x EV ((upper = pv) C_rest ...))
@@ -28,10 +29,25 @@
      (term (x "lower constraint not met"))
      (term (validateNumberConstraints x EV (C_rest ...))))])
 
+;; Same as above except it runs for each element of the vector
 (define-metafunction STAN_E
-  validateConstraint : x EV C t -> ((x error) ...)
-  [(validateConstraint x EV C i) (validateNumberConstraints x EV C)]
-  [(validateConstraint x EV C r) (validateNumberConstraints x EV C)])
+  validateVectorConstraints : x vec C -> (((x error) ...) ...)
+  [(validateVectorConstraints x () C) ()]
+  [(validateVectorConstraints x (pv_h pv_t ...) C)
+   ,(cons
+     (term (validateNumberConstraints x pv_h C))
+     (term (validateVectorConstraints x (pv_t ...) C)))])
+
+;; just a pattern maching function to match to type
+(define-metafunction STAN_E
+  validateConstraint : x EV C t -> (((x error) ...) ...)
+  [(validateConstraint x EV C i) ((validateNumberConstraints x EV C))]
+  [(validateConstraint x EV C r) ((validateNumberConstraints x EV C))]
+  [(validateConstraint x EV C v) (validateVectorConstraints x EV C)]
+  [(validateConstraint x EV C row-vector) (validateVectorConstraints x EV C)])
+
+;; below v the rest are cons with an individual meta function besides row vector
+;simplex ordered positive-ordered row-vector
 
 (define-metafunction STAN_E
   constraints->validate : σ -> ((x error) ...)
@@ -40,10 +56,6 @@
    ,(cons
      (term (validateConstraint x_h EV_h C_h t_h))
      (term (constraints->validate ((x_t EV_t C_t t_t) ...))))])
-
-
-(test-results)
-
 
 
 (define-metafunction STAN_E

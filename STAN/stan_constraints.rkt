@@ -1,6 +1,7 @@
 #lang racket
 (require redex)
 (require "stan_bnf.rkt")
+(require "stan_vector.rkt")
 (require "stan_environment.rkt")
 
 ;; return list for each constraint and if the error occurred
@@ -40,13 +41,17 @@
 
 ;; just a pattern maching function to match to type
 (define-metafunction STAN_E
-  validateConstraint : x EV C t -> (((x error) ...) ...)
-  [(validateConstraint x EV C i) ((validateNumberConstraints x EV C))]
-  [(validateConstraint x EV C r) ((validateNumberConstraints x EV C))]
-  [(validateConstraint x EV C v) (validateVectorConstraints x EV C)]
-  [(validateConstraint x EV C row-vector) (validateVectorConstraints x EV C)]
+  validateConstraint : x EV C t -> ((x error) (((x error) ...) ...))
+  [(validateConstraint x EV C i)
+   ((x "no type specific constraint") ((validateNumberConstraints x EV C)))]
+  [(validateConstraint x EV C r)
+   ((x "no type specific constraint") ((validateNumberConstraints x EV C)))]
+  [(validateConstraint x EV C v)
+   ((x "no type specific constraint") (validateVectorConstraints x EV C))]
+  [(validateConstraint x EV C row-vector)
+   ((x "no type specific constraint") (validateVectorConstraints x EV C))]
   [(validateConstraint x EV C ordered)
-   ,(cons (term (x (vector->ordered EV))) (term (validateVectorConstraints x EV C)))])
+   ((x (vector->ordered EV)) (validateVectorConstraints x EV C))])
 
 ;; below v the rest are cons with an individual meta function besides row vector
 ;simplex ordered positive-ordered row-vector

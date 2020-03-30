@@ -66,8 +66,7 @@
       (none)
       (lower = number)
       (upper = number)
-      (offset = number)
-      (multiplier = number)
+      (offset = number : multiplier = number)
       (C ...))
 
   ;; Math Operators

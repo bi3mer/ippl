@@ -4,6 +4,7 @@
 (require "stan_vector.rkt")
 (require "stan_environment.rkt")
 
+;;;;;;;;;;;;;;;;;;;; constraint restrictions ;;;;;;;;;;;;;;;;;;;;
 ;; return list for each constraint and if the error occurred
 (define-metafunction STAN_E
   validateNumberConstraints : x EV C -> ((x error) ...)
@@ -68,9 +69,46 @@
      (term (validateConstraint x_h EV_h C_h t_h))
      (term (constraints->validate ((x_t EV_t C_t t_t) ...))))])
 
+;;;;;;;;;;;;;;;;;;;; constraint updates ;;;;;;;;;;;;;;;;;;;;
+
+;; update for real numbers
+(define-metafunction STAN_E
+  updateReal : EV C -> EV
+  [(updateReal EV ()) EV]
+  [(updateReal EV ((offset = number_o : multiplier = number_m) C ...))
+   ,(+ (term number_o) (* (term EV) (term number_m)))]
+  [(updateReal EV (C_h C_t ...)) (updateReal EV (C_t ...))])
+
+;; update for vectors
+(define-metafunction STAN_E
+  updateVector : vec C -> vec
+  [(updateVector () C) ()]
+  [(updateVector (number) C) ((updateReal number C))]
+  [(updateVector (number_h number_t ...) C)
+   ,(cons
+     (term (updateReal number_h C))
+     (term (updateVector (number_t ...) C)))])
+
+;; update for types
+(define-metafunction STAN_E
+  update : x EV C t -> (x EV C t)
+  [(update x EV C i) (x EV C i)]
+  [(update x EV C r) (x (updateReal EV C) C r)]
+  [(update x EV C v) (x (updateVector EV C) C v)]
+  [(update x EV C simplex) (x (updateVector EV C) C simplex)]
+  [(update x EV C ordered) (x (updateVector EV C) C ordered)]
+  [(update x EV C positive-ordered) (x (updateVector EV C) C positive-ordered)]
+  [(update x EV C row-vector) (x (updateVector EV C) C row-vector)]
+  [(update x EV C unit-vector) (x (updateVector EV C) C unit-vector)])
+
+;; update real numbers with offset and multiplier if they have it.
 (define-metafunction STAN_E
   constraints->update : σ -> σ
-  [(constraints->update ()) ()])
+  [(constraints->update ()) ()]
+   [(constraints->update ((x_h EV_h C_h t_h) (x_t EV_t C_t t_t) ...))
+   ,(cons
+     (term (update x_h EV_h C_h t_h))
+     (term (constraints->update ((x_t EV_t C_t t_t) ...))))])
 
 ;; exports
 (provide validateConstraint) ; won't be used but nice for unit testing

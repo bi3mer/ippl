@@ -152,4 +152,36 @@
 
 (test-equal (term (constraints->validate ,env)) expected)
 
+;; constraint updates
+(test-equal
+ (term (constraints->update ((x 3.0 ((none)) r))))
+ (term ((x 3.0 ((none)) r))))
+
+(test-equal
+ (term (constraints->update ((x 3 (offset = 1.0 : multiplier = 3.0) i))))
+ (term ((x 3 (offset = 1.0 : multiplier = 3.0) i))))
+
+(test-equal
+ (term (constraints->update ((x 3.0 ((offset = 1.0 : multiplier = 3.0)) r))))
+ (term ((x 10.0 ((offset = 1.0 : multiplier = 3.0)) r))))
+
+(test-equal
+ (term (constraints->update ((x (1.0 2.0) ((offset = 1.0 : multiplier = 3.0)) v))))
+ (term ((x (4.0 7.0) ((offset = 1.0 : multiplier = 3.0)) v))))
+
+(test-equal
+ (term (constraints->update ((x (1.0 2.0) ((offset = 1.0 : multiplier = 3.0)) simplex))))
+ (term ((x (4.0 7.0) ((offset = 1.0 : multiplier = 3.0)) simplex))))
+
+(define cu_env (term
+                ((x 3.0 ((offset = 1.0 : multiplier = 3.0)) r)
+                 (y 3.0 ((offset = 2.0 : multiplier = 1.5)) r)
+                 (z 1   ((offset = 3.0 : multiplier = 2.3)) i))))
+(define cu_out (term
+                ((x 10.0 ((offset = 1.0 : multiplier = 3.0)) r)
+                 (y 6.5 ((offset = 2.0 : multiplier = 1.5)) r)
+                 (z 1   ((offset = 3.0 : multiplier = 2.3)) i))))
+                 
+(test-equal (term (constraints->update ,cu_env)) cu_out)
+
 (test-results)

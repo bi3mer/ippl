@@ -181,6 +181,34 @@
    (side-condition (<= (term number_h) (term number_1)))]
   [(vector->ordered (number_h number_t ...)) "vector is not ordered"])
 
+;; true if vector contains all positive values, else false
+(define-metafunction STAN
+  vector->onlyPositiveValues : vec -> boolean
+  [(vector->onlyPositiveValues ()) #t]
+  [(vector->onlyPositiveValues (number_h number_t ...))
+   (vector->onlyPositiveValues (number_t ...))
+   (side-condition (> (term number_h) 0))]
+  [(vector->onlyPositiveValues (number_h number_t ...)) #f])
+
+;; returns string to indicate whether or not a vector is positive ordered or
+;; not.
+(define-metafunction STAN
+  vector->positiveOrdered : vec -> "vector is positive ordered" or 
+  "vector is not positive ordered"
+  [(vector->positiveOrdered vec) 
+  "vector is positive ordered"
+  (side-condition
+    (and 
+      (term (vector->onlyPositiveValues vec))
+      (equal?
+       (term (vector->ordered vec))
+       "vector is ordered")))]
+  [(vector->positiveOrdered vec) "vector is not positive ordered"])
+
+(define-metafunction STAN
+  vector->simplex : vec -> "vector is simplex" or "vector is not simplex"
+  [(vector->simplex vec) "vector is simplex"])
+
 ;; exports
 (provide vector->init)
 (provide vector->size)
@@ -196,3 +224,5 @@
 (provide vector->multiply-vectors)
 (provide vector->divide-vectors)
 (provide vector->ordered)
+(provide vector->positiveOrdered)
+(provide vector->simplex)

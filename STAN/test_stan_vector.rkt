@@ -88,4 +88,12 @@
 (test-equal (term (vector->ordered (3 2))) "vector is not ordered")
 (test-equal (term (vector->ordered (1 2 3 4 5))) "vector is ordered")
 
+;; test vector->positiveOrdered
+(test-equal (term (vector->positiveOrdered ())) "vector is positive ordered")
+(test-equal (term (vector->positiveOrdered (1))) "vector is positive ordered")
+(test-equal (term (vector->positiveOrdered (-1))) "vector is not positive ordered")
+(test-equal (term (vector->positiveOrdered (-1 2 34 55))) "vector is not positive ordered")
+(test-equal (term (vector->positiveOrdered (3 1 2))) "vector is not positive ordered")
+(test-equal (term (vector->positiveOrdered (1 2 3))) "vector is positive ordered")
+
 (test-results)

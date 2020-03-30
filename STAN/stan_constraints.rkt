@@ -39,7 +39,7 @@
      (term (validateNumberConstraints x pv_h C))
      (term (validateVectorConstraints x (pv_t ...) C)))])
 
-;; just a pattern maching function to match to type
+;; just a pattern maching function to match to type and it's sepcifics
 (define-metafunction STAN_E
   validateConstraint : x EV C t -> ((x error) (((x error) ...) ...))
   [(validateConstraint x EV C i)
@@ -51,11 +51,13 @@
   [(validateConstraint x EV C row-vector)
    ((x "no type specific constraint") (validateVectorConstraints x EV C))]
   [(validateConstraint x EV C ordered)
-   ((x (vector->ordered EV)) (validateVectorConstraints x EV C))])
+   ((x (vector->ordered EV)) (validateVectorConstraints x EV C))]
+  [(validateConstraint x EV C simplex)
+   ((x vector->simplex) (validateVectorConstraints x EV C))]
+  [(validateConstraint x EV C positive-ordered)
+   ((x vector->orderedPositive) (validateVectorConstraints x EV C))])
 
-;; below v the rest are cons with an individual meta function besides row vector
-;simplex ordered positive-ordered row-vector
-
+;; validate every variable in the environment based on constraints
 (define-metafunction STAN_E
   constraints->validate : σ -> ((x error) ...)
   [(constraints->validate ()) ()]

@@ -1,6 +1,7 @@
 #lang racket
 (require redex)
 (require "stan_bnf.rkt")
+(require "stan_environment.rkt")
 (require "stan_constraints.rkt")
 
 ;; integer constraint tests
@@ -135,5 +136,22 @@
  (term
   ((x "vector is not a unit vector")
    (((x "no error")) ((x "no error")) ((x "no error"))))))
+
+;; constraints->validate
+(define env
+  (term ((x 0 ((lower = 0)) i)
+         (y 1.3 ((upper = 1.0)) r)
+         (z (0.3 0.1) ((none)) unit-vector))))
+
+(define expected
+  (term
+   (((x "no type specific constraint")
+     (((x "lower constraint not met"))))
+    ((y "no type specific constraint")
+     (((y "upper constraint not met"))))
+    ((z "vector is not a unit vector")
+     (((z "no error")) ((z "no error")))))))
+
+(test-equal (term (constraints->validate ,env)) expected)
 
 (test-results)

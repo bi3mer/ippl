@@ -61,7 +61,7 @@
 
 ;; validate every variable in the environment based on constraints
 (define-metafunction STAN_E
-  constraints->validate : σ -> ((x error) ...)
+  constraints->validate : σ -> (((x error) (((x error) ...) ...)) ...)
   [(constraints->validate ()) ()]
   [(constraints->validate ((x_h EV_h C_h t_h) (x_t EV_t C_t t_t) ...))
    ,(cons

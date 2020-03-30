@@ -171,6 +171,16 @@
   [(vector->divide-vectors vec_1 vec_2)
    (vector->divide-vectors-private vec_1 vec_2)])
 
+;; returns a string to indicate whether or not a vector is ordered
+(define-metafunction STAN
+  vector->ordered : vec -> "vector is ordered" or "vector is not ordered"
+  [(vector->ordered ())  "vector is ordered"]
+  [(vector->ordered (number))  "vector is ordered"]
+  [(vector->ordered (number_h number_1 number_2 ...))
+   (vector->ordered (number_1 number_2 ...))
+   (side-condition (<= (term number_h) (term number_1)))]
+  [(vector->ordered (number_h number_t ...)) "vector is not ordered"])
+
 ;; exports
 (provide vector->init)
 (provide vector->size)
@@ -185,3 +195,4 @@
 (provide vector->subtract-vectors)
 (provide vector->multiply-vectors)
 (provide vector->divide-vectors)
+(provide vector->ordered)

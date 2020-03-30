@@ -44,7 +44,9 @@
   [(validateConstraint x EV C i) ((validateNumberConstraints x EV C))]
   [(validateConstraint x EV C r) ((validateNumberConstraints x EV C))]
   [(validateConstraint x EV C v) (validateVectorConstraints x EV C)]
-  [(validateConstraint x EV C row-vector) (validateVectorConstraints x EV C)])
+  [(validateConstraint x EV C row-vector) (validateVectorConstraints x EV C)]
+  [(validateConstraint x EV C ordered)
+   ,(cons (term (x (vector->ordered EV))) (term (validateVectorConstraints x EV C)))])
 
 ;; below v the rest are cons with an individual meta function besides row vector
 ;simplex ordered positive-ordered row-vector

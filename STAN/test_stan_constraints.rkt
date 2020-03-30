@@ -33,7 +33,7 @@
  (term (validateConstraint x 2.41 ((lower = 2.4) (upper = 2.42)) r))
  (term (((x "no error") (x "no error")))))
 
-;; v and row-vector constraint tests
+;; v constraint tests
 (test-equal
  (term (validateConstraint x (3 1 2) ((none)) v))
  (term (((x "no error")) ((x "no error")) ((x "no error")))))
@@ -53,6 +53,27 @@
         ((x "lower constraint not met") (x "no error")) ; 1
         ((x "no error") (x "no error")))))              ; 2
 
+;; row-vector constriant tests
+(test-equal
+ (term (validateConstraint x (3 1 2) ((none)) row-vector))
+ (term (((x "no error")) ((x "no error")) ((x "no error")))))
+
+(test-equal
+ (term (validateConstraint x (3 1 2) ((upper = 3)) row-vector))
+ (term (((x "upper constraint not met")) ((x "no error")) ((x "no error")))))
+
+(test-equal
+ (term (validateConstraint x (3 1 2) ((lower = 1)) row-vector))
+ (term (((x "no error")) ((x "lower constraint not met")) ((x "no error")))))
+
+(test-equal
+ (term (validateConstraint x (3 1 2) ((lower = 1) (upper = 3)) row-vector))
+ (term (
+        ((x "no error") (x "upper constraint not met")) ; 3
+        ((x "lower constraint not met") (x "no error")) ; 1
+        ((x "no error") (x "no error")))))              ; 2
+
 ;; simplex constraint tests
+
 
 (test-results)

@@ -82,4 +82,10 @@
 (test-equal (term (vector->divide-vectors (1.0 2.0 3.0 4.0) (1.0 1.0 2.0 2.0))) (term (1.0 2.0 1.5 2.0)))
 (test-equal (term (vector->divide-vectors (1) (1 2))) "vectors must be of the same size")
 
+;; test vector->ordered
+(test-equal (term (vector->ordered ())) "vector is ordered")
+(test-equal (term (vector->ordered (3))) "vector is ordered")
+(test-equal (term (vector->ordered (3 2))) "vector is not ordered")
+(test-equal (term (vector->ordered (1 2 3 4 5))) "vector is ordered")
+
 (test-results)

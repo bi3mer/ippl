@@ -123,4 +123,17 @@
   ((x "vector is positive ordered")
    (((x "no error")) ((x "no error")) ((x "no error"))))))
 
+;; unit vector tests
+(test-equal
+ (term (validateConstraint x (0.1 0.1 0.8) ((none)) unit-vector))
+ (term
+  ((x "vector is a unit vector")
+   (((x "no error")) ((x "no error")) ((x "no error"))))))
+
+(test-equal
+ (term (validateConstraint x (0.1 0.1 0.799) ((none)) unit-vector))
+ (term
+  ((x "vector is not a unit vector")
+   (((x "no error")) ((x "no error")) ((x "no error"))))))
+
 (test-results)

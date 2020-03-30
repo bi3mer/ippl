@@ -96,4 +96,18 @@
 (test-equal (term (vector->positiveOrdered (3 1 2))) "vector is not positive ordered")
 (test-equal (term (vector->positiveOrdered (1 2 3))) "vector is positive ordered")
 
+;; test vector->sum
+(test-equal (term (vector->sum ())) 0.0)
+(test-equal (term (vector->sum (1.0))) 1.0)
+(test-equal (term (vector->sum (-1.0 1.0 1.0 10.1))) 11.1)
+
+;; test vector->unitVector
+(test-equal (term (vector->unitVector (1.0))) "vector is a unit vector")
+(test-equal (term (vector->unitVector (0.5 0.5))) "vector is a unit vector")
+(test-equal (term (vector->unitVector (0.3 0.66))) "vector is not a unit vector")
+(test-equal (term (vector->unitVector (0.1 1.0 0.0))) "vector is not a unit vector")
+(test-equal (term (vector->unitVector (0.1 0.3 0.3 0.2999))) "vector is not a unit vector")
+
+;; test vector->simplex
+
 (test-results)

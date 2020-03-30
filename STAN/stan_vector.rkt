@@ -205,9 +205,33 @@
        "vector is ordered")))]
   [(vector->positiveOrdered vec) "vector is not positive ordered"])
 
+;; gets the sum of the vector
 (define-metafunction STAN
-  vector->simplex : vec -> "vector is simplex" or "vector is not simplex"
-  [(vector->simplex vec) "vector is simplex"])
+  vector->sum : vec -> number
+  [(vector->sum ()) 0.0]
+  [(vector->sum (number)) number]
+  [(vector->sum (number_h number_t ...))
+   ,(+
+     (term number_h)
+     (term (vector->sum (number_t ...))))])
+
+;; sum of vector shoudl be one. Returns a string to indicate if this is valid
+(define-metafunction STAN
+  vector->unitVector : vec -> "vector is a unit vector" or
+  "vector is not a unit vector"
+  [(vector->unitVector vec)
+   "vector is a unit vector"
+   (side-condition
+    (or
+     (equal? (term (vector->sum vec)) 1.0)
+     (equal? (term (vector->sum vec)) 1)))]
+  [(vector->unitVector vec) "vector is not a unit vector"])
+
+;; still not sure on this one
+(define-metafunction STAN
+  vector->simplex : vec -> "vector is simplex" or "vector is not simplex" or "not implemented"
+  [(vector->simplex vec) "not implemented"])
+
 
 ;; exports
 (provide vector->init)
@@ -225,4 +249,6 @@
 (provide vector->divide-vectors)
 (provide vector->ordered)
 (provide vector->positiveOrdered)
+(provide vector->sum)
+(provide vector->unitVector)
 (provide vector->simplex)

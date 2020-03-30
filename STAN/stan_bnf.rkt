@@ -44,7 +44,7 @@
   (pv ::= int num)
 
   ;; vector
-  (vec-type ::= v simplex ordered positive-ordered row-vector)
+  (vec-type ::= v simplex ordered positive-ordered row-vector unit-vector)
   (vec ::= (number ...))
 
   ;; types

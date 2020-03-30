@@ -55,7 +55,9 @@
   [(validateConstraint x EV C simplex)
    ((x (vector->simplex EV)) (validateVectorConstraints x EV C))]
   [(validateConstraint x EV C positive-ordered)
-   ((x (vector->positiveOrdered EV)) (validateVectorConstraints x EV C))])
+   ((x (vector->positiveOrdered EV)) (validateVectorConstraints x EV C))]
+  [(validateConstraint x EV C unit-vector)
+   ((x (vector->unitVector EV)) (validateVectorConstraints x EV C))])
 
 ;; validate every variable in the environment based on constraints
 (define-metafunction STAN_E
@@ -65,7 +67,6 @@
    ,(cons
      (term (validateConstraint x_h EV_h C_h t_h))
      (term (constraints->validate ((x_t EV_t C_t t_t) ...))))])
-
 
 (define-metafunction STAN_E
   constraints->update : σ -> σ

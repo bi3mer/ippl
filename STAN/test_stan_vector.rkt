@@ -101,9 +101,18 @@
 (test-equal (term (vector->sum (1.0))) 1.0)
 (test-equal (term (vector->sum (-1.0 1.0 1.0 10.1))) 11.1)
 
+;; test vector->squareSum
+(test-equal (term (vector->squareSum ())) 0.0)
+(test-equal (term (vector->squareSum (2.0))) 4.0)
+(test-equal (term (vector->squareSum (2.0 1.0 3.0))) 14.0)
+
+;; test vector->magnitude
+(test-equal (term (vector->magnitude ())) 0.0)
+(test-equal (term (vector->magnitude (2.0))) 2.0)
+(test-equal (term (vector->magnitude (2.0 2.0 2.0 2.0 2.0 2.0 2.0 6.0))) 8.0) ; adds to 64
+
 ;; test vector->unitVector
 (test-equal (term (vector->unitVector (1.0))) "vector is a unit vector")
-(test-equal (term (vector->unitVector (0.5 0.5))) "vector is a unit vector")
 (test-equal (term (vector->unitVector (0.3 0.66))) "vector is not a unit vector")
 (test-equal (term (vector->unitVector (0.1 1.0 0.0))) "vector is not a unit vector")
 (test-equal (term (vector->unitVector (0.1 0.3 0.3 0.2999))) "vector is not a unit vector")

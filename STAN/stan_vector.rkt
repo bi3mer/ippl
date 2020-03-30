@@ -215,6 +215,21 @@
      (term number_h)
      (term (vector->sum (number_t ...))))])
 
+;; gets the sum of the vector
+(define-metafunction STAN
+  vector->squareSum : vec -> number
+  [(vector->squareSum ()) 0.0]
+  [(vector->squareSum (number)) ,(expt (term number) 2)]
+  [(vector->squareSum (number_h number_t ...))
+   ,(+
+     (expt (term number_h) 2)
+     (term (vector->squareSum (number_t ...))))])
+
+;; get the magnitude of a vector
+(define-metafunction STAN
+  vector->magnitude : vec -> number
+  [(vector->magnitude vec) ,(sqrt (term (vector->squareSum vec)))])
+
 ;; sum of vector shoudl be one. Returns a string to indicate if this is valid
 (define-metafunction STAN
   vector->unitVector : vec -> "vector is a unit vector" or
@@ -223,8 +238,8 @@
    "vector is a unit vector"
    (side-condition
     (or
-     (equal? (term (vector->sum vec)) 1.0)
-     (equal? (term (vector->sum vec)) 1)))]
+     (equal? (term (vector->magnitude vec)) 1.0)
+     (equal? (term (vector->magnitude vec)) 1)))]
   [(vector->unitVector vec) "vector is not a unit vector"])
 
 ;; still not sure on this one
@@ -250,5 +265,7 @@
 (provide vector->ordered)
 (provide vector->positiveOrdered)
 (provide vector->sum)
+(provide vector->squareSum)
+(provide vector->magnitude)
 (provide vector->unitVector)
 (provide vector->simplex)

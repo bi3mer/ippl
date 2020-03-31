@@ -21,7 +21,7 @@
 
 (define-metafunction STAN
   vector->size : (number ...) -> int
-  [(vector->size (number ...)) (vector->size-private (number ...) 1)])
+  [(vector->size (number ...)) (vector->size-private (number ...) 0)])
 
 ;; given an index, get the correct value. Note that Stan is 0 indexed so the
 ;; implementation of this is as well. It hurts me too.
@@ -38,7 +38,7 @@
   [(vector->outOfBounds (number ...) int)
    ,(or
      (< (term int) 1)
-     (>= (term int) (term (vector->size (number ...)))))])
+     (>= (term int) (+ 1 (term (vector->size (number ...))))))])
 
 ;; given an index, set the value to that index or return an error. It is again
 ;; 1 indexed and it still hurts me.

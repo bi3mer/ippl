@@ -9,9 +9,10 @@
 (test-equal (term (vector->init 5)) (term (0.0 0.0 0.0 0.0 0.0)))
 
 ;; test vector->size
-(test-equal (term (vector->size (vector->init 0))) 1)
-(test-equal (term (vector->size (vector->init 1))) 2)
-(test-equal (term (vector->size (vector->init 42))) 43)
+(test-equal (term (vector->size (0.0 0.0))) 2)
+(test-equal (term (vector->size (vector->init 0))) 0)
+(test-equal (term (vector->size (vector->init 1))) 1)
+(test-equal (term (vector->size (vector->init 42))) 42)
 
 ;; test vector->get
 ;; the two commented out cases will show that an exception is thrown.

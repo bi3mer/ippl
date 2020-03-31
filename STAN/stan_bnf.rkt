@@ -34,7 +34,8 @@
      (r C x)
      (vec-type int C x)
      (x = e)
-     (x [ e ... ] = e)
+     (x [ e ] = e)
+     (x [ e e] = e) 
      (s ...)
      (if e then s else s)
      (for x in e : e do s)) ;;  ((for x in e) s) 
@@ -53,8 +54,9 @@
   ;; types
   (t ::= i r vec-type a) ; m,,, int real vector array matrix
 
-  ;; matrix
-  (matrix-types ::= matrix cov-matrix cholesky-factor-cov cholesky-factor-corr)
+  ;; matrix, note that alwaysone is not in stan but is a stand in for more
+  ;; complicated constraints that don't get at what we are trying to understand.
+  (matrix-types ::= matrix alwaysone) 
 
   ;; Values
   (V ::= pv vec)

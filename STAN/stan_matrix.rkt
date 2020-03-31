@@ -111,10 +111,15 @@
   [(matrix->setValue (vec ...) int_col int_row number)
    (setValue (vec ...) int_col int_row number)])
   
-
-;; always 1 constraint
-
-
+;; always 1 constraint. Replacement for the more copmlex constraints
+(define-metafunction STAN
+  matrix->onlyOnes : (vec ...) -> "contains all ones" or "does not contain all ones"
+  [(matrix->onlyOnes ())  "contains all ones"]
+  [(matrix->onlyOnes (vec_h vec_t ...))
+   "does not contain all ones"
+   (side-condition (not (term (vector->onlyOnes vec_h))))]
+  [(matrix->onlyOnes (vec_h vec_t ...))
+   (matrix->onlyOnes (vec_t ...))])
 
 (provide matrix->init)
 (provide matrix->inBounds)
@@ -124,3 +129,4 @@
 (provide matrix->getValue)
 (provide matrix->setVector)
 (provide matrix->setValue)
+(provide matrix->onlyOnes)

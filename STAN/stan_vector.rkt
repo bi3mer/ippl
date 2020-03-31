@@ -248,6 +248,18 @@
   vector->simplex : vec -> "vector is simplex" or "vector is not simplex" or "not implemented"
   [(vector->simplex vec) "not implemented"])
 
+;; returns boolean to indicate if a vector is only composed of ones
+(define-metafunction STAN
+  vector->onlyOnes : vec -> boolean
+  [(vector->onlyOnes ()) #t]
+  [(vector->onlyOnes (number_h number_t ...))
+   (vector->onlyOnes (number_t ...))
+   (side-condition 
+    (or 
+      (equal? (term number_h) 1)
+      (equal? (term number_h) 1.0)))]
+  [(vector->onlyOnes (number_h number_t ...)) #f])
+
 ;; exports
 (provide vector->init)
 (provide vector->size)
@@ -269,3 +281,4 @@
 (provide vector->magnitude)
 (provide vector->unitVector)
 (provide vector->simplex)
+(provide vector->onlyOnes)

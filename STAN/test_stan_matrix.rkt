@@ -112,4 +112,25 @@
  (term (matrix->setValue (matrix->init 3 1) 3 1 3.3))
  (term ((0.0 0.0 3.3))))
 
+;; test matrix->onlyOnes
+(test-equal
+ (term (matrix->onlyOnes ((1.0 1.0) (1.0 1.0))))
+ "contains all ones")
+
+(test-equal
+ (term (matrix->onlyOnes ((1.0 0.0) (1.0 1.0))))
+ "does not contain all ones")
+
+(test-equal
+ (term (matrix->onlyOnes ((1.0 1.0) (0.0 1.0))))
+ "does not contain all ones")
+
+(test-equal
+ (term (matrix->onlyOnes ((1.0 1.0) (1.0 0.0))))
+ "does not contain all ones")
+
+(test-equal
+ (term (matrix->onlyOnes ((0.0 0.0) (0.0 0.0))))
+ "does not contain all ones")
+
 (test-results)

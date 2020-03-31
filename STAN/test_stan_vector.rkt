@@ -119,5 +119,13 @@
 (test-equal (term (vector->unitVector (0.1 0.3 0.3 0.2999))) "vector is not a unit vector")
 
 ;; test vector->simplex
+; can't.
+
+;; test vector->onlyOnes
+(test-equal (term (vector->onlyOnes (0.0 0.0))) #f)
+(test-equal (term (vector->onlyOnes (1.0 0.0))) #f)
+(test-equal (term (vector->onlyOnes (0.0 1.0))) #f)
+(test-equal (term (vector->onlyOnes (1.0 1.0))) #t)
+(test-equal (term (vector->onlyOnes (1 1 1 1 1 1))) #t)
 
 (test-results)

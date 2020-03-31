@@ -184,4 +184,21 @@
                  
 (test-equal (term (constraints->update ,cu_env)) cu_out)
 
+(test-equal (redex-match? STAN_E σ (term ((x (0.0 0.0) ((none)) simplex)))) #t)
+
+(test-equal
+ (term (constraints->update ((x ((0.0 0.0)) ((offset = 3 : multiplier = 1)) m))))
+ (term ((x ((3.0 3.0)) ((offset = 3 : multiplier = 1)) m))))
+
+(test-equal
+ (term (constraints->update ((x ((0.0)) ((none)) m))))
+ (term ((x ((0.0)) ((none)) m))))
+
+(test-equal
+ (term
+  (constraints->update
+   ((x ((0.0 1.0 0.0) (1.0 0.0 1.0)) ((offset = 1.0 : multiplier = 3.0)) m))))
+ (term ((x ((1.0 4.0 1.0) (4.0 1.0 4.00)) ((offset = 1.0 : multiplier = 3.0)) m))))
+
+
 (test-results)

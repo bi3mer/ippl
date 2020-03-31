@@ -89,6 +89,17 @@
      (term (updateReal number_h C))
      (term (updateVector (number_t ...) C)))])
 
+;; update for matrices
+(define-metafunction STAN
+  updateMatrix : (vec ...) C -> (vec ...)
+  ; empty case
+  [(updateMatrix () C) ()]
+  ; list is still going
+  [(updateMatrix (vec_h vec_t ...) C)
+   ,(cons
+     (term (updateVector vec_h C))
+     (term (updateMatrix (vec_t ...) C)))])
+
 ;; update for types
 (define-metafunction STAN_E
   update : x EV C t -> (x EV C t)
@@ -99,7 +110,9 @@
   [(update x EV C ordered) (x (updateVector EV C) C ordered)]
   [(update x EV C positive-ordered) (x (updateVector EV C) C positive-ordered)]
   [(update x EV C row-vector) (x (updateVector EV C) C row-vector)]
-  [(update x EV C unit-vector) (x (updateVector EV C) C unit-vector)])
+  [(update x EV C unit-vector) (x (updateVector EV C) C unit-vector)]
+  [(update x EV C m) (x (updateMatrix EV C) C m)]
+  [(update x EV C alwaysone) (x (updateMatrix EV C) C alwaysone)])
 
 ;; update real numbers with offset and multiplier if they have it.
 (define-metafunction STAN_E
@@ -109,6 +122,13 @@
    ,(cons
      (term (update x_h EV_h C_h t_h))
      (term (constraints->update ((x_t EV_t C_t t_t) ...))))])
+
+(define env_m (term ((x ((0.0 0.0) (0.0 0.0)) ((none) (none)) m))))
+(test-equal (redex-match? STAN_E σ env_m) #t)
+#;(test-equal
+ (term (constraints->update ,env_m))
+ (term ()))
+(test-results)
 
 ;; exports
 (provide validateConstraint) ; won't be used but nice for unit testing

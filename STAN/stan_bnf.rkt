@@ -51,15 +51,16 @@
   (vec-type ::= v simplex ordered positive-ordered row-vector unit-vector)
   (vec ::= (number ...))
 
-  ;; types
-  (t ::= i r vec-type a) ; m,,, int real vector array matrix
-
   ;; matrix, note that alwaysone is not in stan but is a stand in for more
   ;; complicated constraints that don't get at what we are trying to understand.
-  (matrix-types ::= matrix alwaysone) 
+  (mat-types ::= m alwaysone) 
+  (mat ::= (vec ...))
+
+    ;; types
+  (t ::= i r vec-type mat-types)
 
   ;; Values
-  (V ::= pv vec)
+  (V ::= pv vec mat)
 
   ;; Environment Values
   (EV ::= V x)

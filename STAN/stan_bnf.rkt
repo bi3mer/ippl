@@ -20,14 +20,14 @@
 ;;   implementation provided.
 ;; - syntax simplified so a variable has to be declared before its value can be
 ;;   assigned.
-;; - syntax simplified for [][] case to be [ number ... ] to simplify the AST to
+;; - syntax simplified for <><> case to be < number ... > to simplify the AST to
 ;;   be more manageable.
 ;; - for now, removing matrix
 ;; - for now, removing array
 
 ;;;; Stan language
 (define-language STAN
-  (e ::= pv bool x (e ...) (e [e]) (e MO e) (e AMO e) (e MBO e) (- e)) ;; 
+  (e ::= pv bool x (e ...) (e < e >) (e < e e >) (e MO e) (e AMO e) (e MBO e) (- e)) ;; 
   (s ::=
      skip
      (i C x)
@@ -35,8 +35,8 @@
      (vec-type int C x)
      (mat-type int int C x)
      (x = e)
-     (x [ e ] = e)
-     (x [ e e] = e) 
+     (x < e > = e)
+     (x < e e > = e) 
      (s ...)
      (if e then s else s)
      (for x in e : e do s)) ;;  ((for x in e) s) 
@@ -46,7 +46,7 @@
   (int ::= integer)
   (num ::= number)
   (pv ::= int num)
-  (bool = boolean)
+  (bool ::= boolean)
 
   ;; vector
   (vec-type ::= v simplex ordered positive-ordered row-vector unit-vector)
@@ -89,27 +89,31 @@
      (skip ... E s ...)
      
      ;; assignments
-     (x = E)
-     (x = E [e])
-     (x = vec [E])
-     (x = mat [E])
-     (x = E [e e])
-     (x = mat [E e])
-     (x = mat [int E])
-     (x [E] = e)
-     (x [int] = E)
-     (x [E e] = e)
-     (x [int E] = e)
-     (x [int int] = E)
+     (x = E) 
+
+     (x = E < e >)
+     (x = vec < E >)
+     (x = mat < E >)
+
+     (x = E < e e >)
+     (x = mat < E e >)
+     (x = mat < int E >)
+
+     (x  < E > = e)
+     (x < int > = E)
+
+     (x < E e > = e)
+     (x < int E > = e)
+     (x < int int > = E)
 
      ; getting
-     (E [e])
-     (vec [E])
-     (mat [E])
+     (E < e >)
+     (vec < E >)
+     (mat < E >)
      
-     (E [e e])
-     (mat [E e])
-     (mat [int E])
+     (E < e e >)
+     (mat < E e >)
+     (mat < int E >)
 
      ; operations
      (E MO e)

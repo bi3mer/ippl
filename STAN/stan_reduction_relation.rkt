@@ -40,18 +40,23 @@
         [(in-hole E skip) (env->updateVector σ x vec)]
         update-variable-vector)
 
+   ; update variable value for a matrix
+   (--> [(in-hole E (x = mat)) σ]
+        [(in-hole E skip) (env->updateMatrix σ x mat)]
+        update-variable-matrix)
+
    ; update vector value
-   (--> [(in-hole E (x [int] = pv)) σ]
+   (--> [(in-hole E (x < int > = pv)) σ]
         [(in-hole E skip) (env->updateVectorValue σ x int pv)] 
         update-vector-variable-value)
 
    ; update matrix vector
-   (--> [(in-hole E (x [int] = vec)) σ]
+   (--> [(in-hole E (x < int > = vec)) σ]
         [(in-hole E skip) (env->updateMatrixVector σ x int vec)]
         update-matrix-vector)
 
    ; update matrix vector value
-   (--> [(in-hole E (x [int_col int_row] = pv)) σ]
+   (--> [(in-hole E (x < int_col int_row > = pv)) σ]
         [(in-hole E skip) (env->updateMatrixVectorValue σ x int_col int_row pv)]
         update-matrix-vector-value)
    
@@ -61,17 +66,17 @@
        get-value)
 
    ;; index a vector
-   (--> [(in-hole E (vec (int))) σ]
+   (--> [(in-hole E (vec < int >)) σ]
         [(in-hole E (vector->get vec int)) σ]
         index-vector)
 
    ;; index a matrix
-   (--> [(in-hole E (mat (int))) σ]
+   (--> [(in-hole E (mat < int >)) σ]
         [(in-hole E (matrix->getVector mat int)) σ]
         index-matrix)
 
    ;; get matrix value
-   (--> [(in-hole E (mat (int_1 int_2))) σ]
+   (--> [(in-hole E (mat < int_1 int_2 >)) σ]
         [(in-hole E (matrix->getValue mat int_1 int_2)) σ]
         double-index-matrix)
 
@@ -114,8 +119,6 @@
                       skip))
         (env->updateNumber σ x int_1)]
        for-loop)
-    
-   ;; foreach
    ))
 
 

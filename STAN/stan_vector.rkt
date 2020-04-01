@@ -242,11 +242,28 @@
      (equal? (term (vector->magnitude vec)) 1)))]
   [(vector->unitVector vec) "vector is not a unit vector"])
 
-;; I can't find any clear documentation on how to implement this and am leaving
-;; it blank. May change depending on meeting later in the week.
+;; true if there are any negatives in the vector else false
 (define-metafunction STAN
-  vector->simplex : vec -> "vector is simplex" or "vector is not simplex" or "not implemented"
-  [(vector->simplex vec) "not implemented"])
+  vector->hasNegatives : vec -> boolean
+  [(vector->hasNegatives ()) #f]
+  [(vector->hasNegatives (number_h number_t ...))
+   #t
+   (side-condition (< (term number_h) 0))]
+  [(vector->hasNegatives (number_h number_t ...))
+   (vector->hasNegatives (number_t ...))])
+                         
+
+;; simplex vector implementation. THey describe it as a vector that adds to 1
+;; and does not contain a negative value
+(define-metafunction STAN
+  vector->simplex : vec -> "vector is simplex" or "vector is not simplex"
+  [(vector->simplex vec)
+    "vector is simplex"
+    (side-condition
+     (and
+      (equal? (term (vector->sum vec)) 1.0)
+      (not (term (vector->hasNegatives vec)))))]
+  [(vector->simplex vec) "vector is not simplex"])
 
 ;; returns boolean to indicate if a vector is only composed of ones
 (define-metafunction STAN
@@ -280,5 +297,6 @@
 (provide vector->squareSum)
 (provide vector->magnitude)
 (provide vector->unitVector)
+(provide vector->hasNegatives)
 (provide vector->simplex)
 (provide vector->onlyOnes)

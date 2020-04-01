@@ -118,8 +118,17 @@
 (test-equal (term (vector->unitVector (0.1 1.0 0.0))) "vector is not a unit vector")
 (test-equal (term (vector->unitVector (0.1 0.3 0.3 0.2999))) "vector is not a unit vector")
 
+;; test vector->hasNegatives
+(test-equal (term (vector->hasNegatives (-1))) #t)
+(test-equal (term (vector->hasNegatives (1 2 2 3 -0.01))) #t)
+(test-equal (term (vector->hasNegatives (1))) #f)
+(test-equal (term (vector->hasNegatives (1 2 3 5 10))) #f)
+
 ;; test vector->simplex
-; can't.
+(test-equal (term (vector->simplex (1.0))) "vector is simplex")
+(test-equal (term (vector->simplex (1.0 0.001))) "vector is not simplex")
+(test-equal (term (vector->simplex (1.2 -0.2))) "vector is not simplex")
+(test-equal (term (vector->simplex (0.2 0.2 0.6))) "vector is simplex")
 
 ;; test vector->onlyOnes
 (test-equal (term (vector->onlyOnes (0.0 0.0))) #f)

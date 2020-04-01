@@ -90,6 +90,27 @@
  (term (env->updateVector ((x (3 3) ((none)) v)) x (1 1)))
  (term ((x (1 1) ((none)) v))))
 
+;; test env->updateMatrixVector
+(test-equal
+ (term (env->updateMatrixVector () x 3 (0.0 0.0)))
+ "variable not found")
+
+(test-equal
+ (term (env->updateMatrixVector ((x 3 ((none)) i)) x 3 (0.0 0.0)))
+ "vector can only be assigned to variable [int] of type matrix")
+
+(test-equal
+ (term (env->updateMatrixVector ((x ((2.0 2.0 2.0) (2.0 2.0 2.0)) ((none)) m)) x 3 (0.0 0.0)))
+ "index out of bounds")
+
+(test-equal
+ (term (env->updateMatrixVector ((x ((2.0 2.0 2.0) (2.0 2.0 2.0)) ((none)) m)) x 1 (0.0 0.0)))
+ "size cannot change on updating matrix vector")
+
+(test-equal
+ (term (env->updateMatrixVector ((x ((2.0 2.0 2.0) (2.0 2.0 2.0)) ((none)) m)) x 1 (0.0 0.0 0.0)))
+ (term ((x ((0.0 0.0 0.0) (2.0 2.0 2.0)) ((none)) m))))
+
 ;; test env->updateMatrix
 (test-equal
  (term (env->updateMatrix () x ((3 3))))

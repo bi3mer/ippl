@@ -136,7 +136,9 @@
    (side-condition
     (or
      (eqv? (term (env->getType σ x)) (term i))
-     (eqv? (term (env->getType σ x)) (term r))))]
+     (eqv? (term (env->getType σ x)) (term r))
+     (eqv? (term (env->getType σ x)) (term m))
+     (eqv? (term (env->getType σ x)) (term onlyones))))]
   [(env->updateVector σ x vec)
    "size cannot change on updating vector variable"
    (side-condition
@@ -146,7 +148,45 @@
   [(env->updateVector σ x vec) (env->updateVar σ x vec)])
 
 ;; update matrix vector value
+;; env->updateMatrixVectorValue
+
+
 ;; update matrix vector
+(define-metafunction STAN_E
+  env->updateMatrixVector : σ x int vec -> σ or
+  "variable not found" or 
+  "vector can only be assigned to variable [int] of type matrix" or
+  "size cannot change on updating matrix vector" or
+  "index out of bounds"
+  ; size check
+  [(env->updateMatrixVector σ x int vec)
+   "variable not found"
+   (side-condition (not (term (variableExists σ x))))]
+  ; type check
+  [(env->updateMatrixVector σ x int vec)
+   "vector can only be assigned to variable [int] of type matrix"
+   (side-condition
+    (not
+     (or
+      (eqv? (term (env->getType σ x)) (term m))
+      (eqv? (term (env->getType σ x)) (term onlyones)))))]
+  ; size check and run on success
+  [(env->updateMatrixVector σ x int vec)
+   "index out of bounds"
+   (side-condition
+    (not (term (matrix->inBounds (env->getValue σ x) int))))]
+  ; size error
+  [(env->updateMatrixVector σ x int vec)
+   "size cannot change on updating matrix vector"
+   (side-condition
+    (not
+     (eqv?
+      (term (vector->size vec))
+      (term (matrix->numCols (env->getValue σ x))))))]
+  ; can update
+  [(env->updateMatrixVector σ x int vec)
+   (env->updateVar σ x (matrix->setVector (env->getValue σ x) int vec))])
+
 ;; update matrix
 (define-metafunction STAN_E
   env->updateMatrix : σ x mat -> σ or
@@ -190,4 +230,5 @@
 (provide env->updateNumber)
 (provide env->updateVectorValue)
 (provide env->updateVector)
+(provide env->updateMatrixVector)
 (provide env->updateMatrix)

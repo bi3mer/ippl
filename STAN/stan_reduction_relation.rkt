@@ -46,9 +46,15 @@
         update-vector-variable-value)
 
    ; update matrix vector
+   (--> [(in-hole E (x [int] = vec)) σ]
+        [(in-hole E skip) (env->updateMatrixVector σ x int vec)]
+        update-matrix-vector)
 
    ; update matrix vector value
-
+   (--> [(in-hole E (x [int_col int_row] = pv)) σ]
+        [(in-hole E skip) (env->updateMatrixVectorValue σ x int_col int_row pv)]
+        update-matrix-vector-value)
+   
    ; get a variable
    (--> [(in-hole E x) σ]
        [(in-hole E (env->getValue σ x)) σ]

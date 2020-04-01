@@ -78,6 +78,34 @@
  ucv2
  (term (((skip skip) "index out of bounds"))))
 
+;; update matrix vector test
+; success
+(define umvt1 (term (stan->run ((m 2 2 ((none)) x) (x [1] = (1.0 1.0))))))
+(test-equal
+ (term (meta->getEnvironment ,umvt1))
+ (term ((x ((1.0 1.0) (0.0 0.0)) ((none)) m))))
+
+; index too large
+(define umvt2 (apply-reduction-relation* stan_r (term (((m 2 2 ((none)) y) (y [3] = (10.0 10.0))) ()))))
+(test-equal
+ umvt2
+ (term (((skip skip) "index out of bounds"))))
+
+; assigning number instead of vector
+(define umvt3 (apply-reduction-relation* stan_r (term (((m 2 2 ((none)) y) (y [1] = 10.0)) ()))))
+(test-equal
+ umvt3
+ (term (((skip skip) "must index a vector"))))
+
+; assigning vector of wrong size
+(define umvt4 (apply-reduction-relation* stan_r (term (((m 2 2 ((none)) y) (y [1] = (0.0))) ()))))
+(test-equal
+ umvt4
+ (term (((skip skip) "size cannot change on updating matrix vector"))))
+
+
+;; update matrix vector value test
+
 ;; get value tests
 (define gvt (term (stan->run ((r ((none)) x) (x = 3.0) (r ((none)) y) (y = x)))))
 (test-equal

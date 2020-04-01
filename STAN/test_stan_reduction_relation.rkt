@@ -120,8 +120,27 @@
  umvt4
  (term (((skip skip) "size cannot change on updating matrix vector"))))
 
-
 ;; update matrix vector value test
+; succes
+(define umvvt1 (term (stan->run ((m 2 2 ((none)) x) (x < 1 1 > = 1.1)))))
+(test-equal
+ (term (meta->getEnvironment ,umvvt1))
+ (term ((x ((1.1 0.0) (0.0 0.0)) ((none)) m))))
+
+; wrong type in this case won't run.
+
+; x index bad
+(define umvvt2 (apply-reduction-relation* stan_r (term (((m 2 2 ((none)) y) (y < 3 1 > = 1.1)) ()))))
+(test-equal
+ umvvt2
+ (term (((skip skip) "x index out of bounds"))))
+
+; y index bad
+ (define umvvt3 (apply-reduction-relation* stan_r (term (((m 2 2 ((none)) y) (y < 1 3 > = 1.1)) ()))))
+(test-equal
+ umvvt3
+ (term (((skip skip) "y index out of bounds"))))
+
 
 ;; get value tests
 (define gvt (term (stan->run ((r ((none)) x) (x = 3.0) (r ((none)) y) (y = x)))))

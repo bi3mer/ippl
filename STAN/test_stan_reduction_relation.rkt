@@ -81,13 +81,19 @@
 ;; update matrix test
 ; success
 (define umt1 (term (stan->run ((m 1 2 ((none)) y) (y = ((1.1) (1.1)))))))
-;umt1
+(test-equal
+ (term (meta->getEnvironment ,umt1))
+ (term ((y ((1.1) (1.1)) ((none)) m))))
 
 ; type problem
+(test-equal
+ (apply-reduction-relation* stan_r (term (((m 1 2 ((none)) x) (x = (3.0 3.0))) ())))
+ (term (((skip skip) "vector can only be assigned to variable of type vector"))))
 
-; x too large
-
-; y too large
+; size problem
+(test-equal
+ (apply-reduction-relation* stan_r (term (((m 1 2 ((none)) x) (x = ((3.0 3.0)))) ())))
+ (term (((skip skip) "size cannot change on updating matrix variable"))))
 
 ;; update matrix vector test
 ; success

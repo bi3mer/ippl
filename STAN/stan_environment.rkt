@@ -105,17 +105,19 @@
 (define-metafunction STAN_E
   env->updateVectorValue : σ x int pv -> σ
   or "variable not found"
-  or "cannot index a number"
+  or "must index a vector"
   or "index out of bounds"
   [(env->updateVectorValue σ x int pv)
    "variable not found"
    (side-condition (not (term (variableExists σ x))))]
   [(env->updateVectorValue σ x int pv)
-   "cannot index a number"
+   "must index a vector"
    (side-condition
     (or
      (eqv? (term (env->getType σ x)) (term i))
-     (eqv? (term (env->getType σ x)) (term r))))]
+     (eqv? (term (env->getType σ x)) (term r))
+     (eqv? (term (env->getType σ x)) (term m))
+     (eqv? (term (env->getType σ x)) (term onlyones))))]
   [(env->updateVectorValue σ x int pv)
    "index out of bounds"
    (side-condition (term (vector->outOfBounds (env->getValue σ x) int)))]
@@ -149,7 +151,39 @@
 
 ;; update matrix vector value
 ;; env->updateMatrixVectorValue
-
+(define-metafunction STAN_E
+  env->updateMatrixVectorValue :  σ x int int number -> σ or
+  "variable not found" or
+  "variable must of type matrix for operaiton var [x y]" or
+  "y index out of bounds" or
+  "x index out of bounds"
+  ; variable existence check
+  [(env->updateMatrixVectorValue σ x int_col int_row number)
+   "variable not found"
+   (side-condition (not (term (variableExists σ x))))]
+  ; variable type check
+  [(env->updateMatrixVectorValue σ x int_col int_row number)
+   "variable must of type matrix for operaiton var [x y]"
+   (side-condition
+    (not
+     (or
+      (eqv? (term (env->getType σ x)) (term m))
+      (eqv? (term (env->getType σ x)) (term onlyones)))))]
+  ; check bounds for row index
+  [(env->updateMatrixVectorValue σ x int_col int_row number)
+   "y index out of bounds"
+   (side-condition
+    (not (term (matrix->inBounds (env->getValue σ x) int_row))))]
+  ; check bounds for col index
+  [(env->updateMatrixVectorValue σ x int_col int_row number)
+   "x index out of bounds"
+   (side-condition
+    (term (vector->outOfBounds (matrix->getVector (env->getValue σ x) int_row) int_col)))]
+  [(env->updateMatrixVectorValue σ x int_col int_row number)
+   (env->updateVar
+    σ
+    x
+    (matrix->setValue (env->getValue σ x) int_col int_row number))])
 
 ;; update matrix vector
 (define-metafunction STAN_E
@@ -230,5 +264,6 @@
 (provide env->updateNumber)
 (provide env->updateVectorValue)
 (provide env->updateVector)
+(provide env->updateMatrixVectorValue)
 (provide env->updateMatrixVector)
 (provide env->updateMatrix)

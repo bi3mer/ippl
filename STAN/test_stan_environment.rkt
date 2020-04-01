@@ -59,7 +59,7 @@
 
 (test-equal
  (term (env->updateVectorValue ((x 3 ((none)) r)) x 3 3))
- "cannot index a number")
+ "must index a vector")
 
 (test-equal
  (term (env->updateVectorValue ((x (3 0 1 1) ((none)) v)) x 1 1.12))
@@ -89,6 +89,27 @@
 (test-equal
  (term (env->updateVector ((x (3 3) ((none)) v)) x (1 1)))
  (term ((x (1 1) ((none)) v))))
+
+;; test env->updateMatrixVectorValue
+(test-equal
+ (term (env->updateMatrixVectorValue () x 3 2 1.1))
+ "variable not found")
+
+(test-equal
+ (term (env->updateMatrixVectorValue ((x (0.0 0.0) ((none)) v)) x 3 2 1.1))
+ "variable must of type matrix for operaiton var [x y]")
+
+(test-equal
+ (term (env->updateMatrixVectorValue ((x ((0.0 0.0)) ((none)) m)) x 1 2 1.1))
+ "y index out of bounds")
+
+(test-equal
+ (term (env->updateMatrixVectorValue ((x ((0.0 0.0)) ((none)) m)) x 3 1 1.1))
+ "x index out of bounds")
+
+(test-equal
+ (term (env->updateMatrixVectorValue ((x ((0.0 0.0)) ((none)) m)) x 1 1 1.1))
+ (term ((x ((1.1 0.0)) ((none)) m))))
 
 ;; test env->updateMatrixVector
 (test-equal

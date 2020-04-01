@@ -66,12 +66,12 @@
   (EV ::= V x)
   
   ;; Constraints. Non-relevant constraints will not be used in the final checking
-  (C ::=
+  (IC ::= 
       (none)
       (lower = number)
       (upper = number)
-      (offset = number : multiplier = number)
-      (C ...))
+      (offset = number : multiplier = number))
+  (C ::= (IC ...))
 
   ;; Math Operators
   (MO ::= + - * / ^ %)
@@ -86,18 +86,42 @@
   (E ::=
      hole
      (skip ... E s ...)
-     (E [e])
-     (vec [E])
+     
+     ;; assignments
      (x = E)
+     (x = E [e])
+     (x = vec [E])
+     (x = mat [E])
+     (x = E [e e])
+     (x = mat [E e])
+     (x = mat [int E])
      (x [E] = e)
      (x [int] = E)
+     (x [E e] = e)
+     (x [int E] = e)
+     (x [int int] = E)
+
+     ; getting
+     (E [e])
+     (vec [E])
+     (mat [E])
+     
+     (E [e e])
+     (mat [E e])
+     (mat [int E])
+
+     ; operations
      (E MO e)
      (pv MO E)
      (- E)
+
      (E AMO e)
      (vec AMO E)
+
      (E MBO e)
      (pv MBO E)
+
+     ; control flow
      (if E then s else s)
      (for x in E : e do s)
      (for x in int : E do s))

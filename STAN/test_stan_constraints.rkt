@@ -172,8 +172,8 @@
  (term ((x 3.0 ((none)) r))))
 
 (test-equal
- (term (constraints->update ((x 3 (offset = 1.0 : multiplier = 3.0) i))))
- (term ((x 3 (offset = 1.0 : multiplier = 3.0) i))))
+ (term (constraints->update ((x 3 ((offset = 1.0 : multiplier = 3.0)) i))))
+ (term ((x 3 ((offset = 1.0 : multiplier = 3.0)) i))))
 
 (test-equal
  (term (constraints->update ((x 3.0 ((offset = 1.0 : multiplier = 3.0)) r))))

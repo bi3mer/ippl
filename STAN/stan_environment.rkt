@@ -1,6 +1,7 @@
 #lang racket
 (require redex)
 (require "stan_bnf.rkt")
+(require "stan_matrix.rkt")
 (require "stan_vector.rkt")
 
 ;; extended Stan language to contain an environment for variables. Made public.

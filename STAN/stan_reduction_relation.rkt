@@ -37,6 +37,10 @@
         [(in-hole E skip) (env->updateVectorValue σ x int pv)] 
         update-vector-variable-value)
 
+   ; update matrix vector
+
+   ; update matrix vector value
+
    ; get a variable
    (--> [(in-hole E x) σ]
        [(in-hole E (env->getValue σ x)) σ]
@@ -46,6 +50,16 @@
    (--> [(in-hole E (vec (int))) σ]
         [(in-hole E (vector->get vec int)) σ]
         index-vector)
+
+   ;; index a matrix
+   (--> [(in-hole E (mat (int))) σ]
+        [(in-hole E (matrix->getVector mat int)) σ]
+        index-matrix)
+
+   ;; get matrix value
+   (--> [(in-hole E (mat (int_1 int_2))) σ]
+        [(in-hole E (matrix->getValue mat int_1 int_2)) σ]
+        double-index-matrix)
 
    ;; math operations
    ; real and ints
@@ -77,7 +91,7 @@
        if-false)
 
    ;; for
-    (-->[(in-hole E (for x in int_1 : int_2 do s)) σ]
+   (-->[(in-hole E (for x in int_1 : int_2 do s)) σ]
        [(in-hole E
                  (if (int_1 <= int_2)
                      then

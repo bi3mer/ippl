@@ -11,26 +11,26 @@
   validateNumberConstraints : x EV C -> ((x error) ...)
   [(validateNumberConstraints x EV ()) ()]
   ;; none constraint
-  [(validateNumberConstraints x EV ((none) C_rest ...))
-   ,(cons (term (x "no error")) (term (validateNumberConstraints x EV (C_rest ...))))]
+  [(validateNumberConstraints x EV ((none) IC_rest ...))
+   ,(cons (term (x "no error")) (term (validateNumberConstraints x EV (IC_rest ...))))]
   ;; upper constraint when side condition for upper met
-  [(validateNumberConstraints x EV ((upper = pv) C_rest ...))
-   ,(cons (term (x "no error")) (term (validateNumberConstraints x EV (C_rest ...))))
+  [(validateNumberConstraints x EV ((upper = pv) IC_rest ...))
+   ,(cons (term (x "no error")) (term (validateNumberConstraints x EV (IC_rest ...))))
    (side-condition (< (term EV) (term pv)))]
   ;; upper constraint when side condition for upper is not met
-  [(validateNumberConstraints x EV ((upper = pv) C_rest ...))
+  [(validateNumberConstraints x EV ((upper = pv) IC_rest ...))
    ,(cons
      (term (x "upper constraint not met"))
-     (term (validateNumberConstraints x EV (C_rest ...))))]
+     (term (validateNumberConstraints x EV (IC_rest ...))))]
   ;; lower constraint when side condition for upper met
-  [(validateNumberConstraints x EV ((lower = pv) C_rest ...))
-   ,(cons (term (x "no error")) (term (validateNumberConstraints x EV (C_rest ...))))
+  [(validateNumberConstraints x EV ((lower = pv) IC_rest ...))
+   ,(cons (term (x "no error")) (term (validateNumberConstraints x EV (IC_rest ...))))
    (side-condition (> (term EV) (term pv)))]
   ;; lower constraint when side condition for upper is not met
-  [(validateNumberConstraints x EV ((lower = pv) C_rest ...))
+  [(validateNumberConstraints x EV ((lower = pv) IC_rest ...))
    ,(cons
      (term (x "lower constraint not met"))
-     (term (validateNumberConstraints x EV (C_rest ...))))])
+     (term (validateNumberConstraints x EV (IC_rest ...))))])
 
 ;; Same as above except it runs for each element of the vector
 (define-metafunction STAN_E
@@ -88,9 +88,9 @@
 (define-metafunction STAN_E
   updateReal : EV C -> EV
   [(updateReal EV ()) EV]
-  [(updateReal EV ((offset = number_o : multiplier = number_m) C ...))
+  [(updateReal EV ((offset = number_o : multiplier = number_m) IC ...))
    ,(+ (term number_o) (* (term EV) (term number_m)))]
-  [(updateReal EV (C_h C_t ...)) (updateReal EV (C_t ...))])
+  [(updateReal EV (IC_h IC_t ...)) (updateReal EV (IC_t ...))])
 
 ;; update for vectors
 (define-metafunction STAN_E

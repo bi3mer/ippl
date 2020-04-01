@@ -2,6 +2,7 @@
 (require redex)
 (require "stan_bnf.rkt")
 (require "stan_vector.rkt")
+(require "stan_matrix.rkt")
 (require "stan_environment.rkt")
 
 ;;;;;;;;;;;;;;;;;;;; constraint restrictions ;;;;;;;;;;;;;;;;;;;;
@@ -40,29 +41,41 @@
      (term (validateNumberConstraints x pv_h C))
      (term (validateVectorConstraints x (pv_t ...) C)))])
 
+(define-metafunction STAN_E
+  validateMatrixConstraints : x mat C -> ((((x error) ...) ...) ...)
+  [(validateMatrixConstraints x () C) ()]
+  [(validateMatrixConstraints x (vec_h vec_t ...) C)
+   ,(cons
+     (term (validateVectorConstraints x vec_h C))
+     (term (validateMatrixConstraints x (vec_t ...) C)))])
+
 ;; just a pattern maching function to match to type and it's sepcifics
 (define-metafunction STAN_E
-  validateConstraint : x EV C t -> ((x error) (((x error) ...) ...))
+  validateConstraint : x EV C t -> ((x error) ((((x error) ...) ...) ...))
   [(validateConstraint x EV C i)
-   ((x "no type specific constraint") ((validateNumberConstraints x EV C)))]
+   ((x "no type specific constraint") (((validateNumberConstraints x EV C))))]
   [(validateConstraint x EV C r)
-   ((x "no type specific constraint") ((validateNumberConstraints x EV C)))]
+   ((x "no type specific constraint") (((validateNumberConstraints x EV C))))]
   [(validateConstraint x EV C v)
-   ((x "no type specific constraint") (validateVectorConstraints x EV C))]
+   ((x "no type specific constraint") ((validateVectorConstraints x EV C)))]
   [(validateConstraint x EV C row-vector)
-   ((x "no type specific constraint") (validateVectorConstraints x EV C))]
+   ((x "no type specific constraint") ((validateVectorConstraints x EV C)))]
   [(validateConstraint x EV C ordered)
-   ((x (vector->ordered EV)) (validateVectorConstraints x EV C))]
+   ((x (vector->ordered EV)) ((validateVectorConstraints x EV C)))]
   [(validateConstraint x EV C simplex)
-   ((x (vector->simplex EV)) (validateVectorConstraints x EV C))]
+   ((x (vector->simplex EV)) ((validateVectorConstraints x EV C)))]
   [(validateConstraint x EV C positive-ordered)
-   ((x (vector->positiveOrdered EV)) (validateVectorConstraints x EV C))]
+   ((x (vector->positiveOrdered EV)) ((validateVectorConstraints x EV C)))]
   [(validateConstraint x EV C unit-vector)
-   ((x (vector->unitVector EV)) (validateVectorConstraints x EV C))])
+   ((x (vector->unitVector EV)) ((validateVectorConstraints x EV C)))]
+  [(validateConstraint x EV C m)
+   ((x "no type constraint") (validateMatrixConstraints x EV C))]
+  [(validateConstraint x EV C alwaysone)
+   ((x (matrix->onlyOnes EV)) (validateMatrixConstraints x EV C))])
 
 ;; validate every variable in the environment based on constraints
 (define-metafunction STAN_E
-  constraints->validate : σ -> (((x error) (((x error) ...) ...)) ...)
+  constraints->validate : σ -> (((x error) ((((x error) ...) ...) ...)) ...)
   [(constraints->validate ()) ()]
   [(constraints->validate ((x_h EV_h C_h t_h) (x_t EV_t C_t t_t) ...))
    ,(cons
@@ -122,13 +135,6 @@
    ,(cons
      (term (update x_h EV_h C_h t_h))
      (term (constraints->update ((x_t EV_t C_t t_t) ...))))])
-
-(define env_m (term ((x ((0.0 0.0) (0.0 0.0)) ((none) (none)) m))))
-(test-equal (redex-match? STAN_E σ env_m) #t)
-#;(test-equal
- (term (constraints->update ,env_m))
- (term ()))
-(test-results)
 
 ;; exports
 (provide validateConstraint) ; won't be used but nice for unit testing

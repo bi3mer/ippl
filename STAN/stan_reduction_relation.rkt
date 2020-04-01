@@ -1,6 +1,7 @@
 #lang racket
 (require redex)
 (require "stan_bnf.rkt")
+(require "stan_matrix.rkt")
 (require "stan_vector.rkt")
 (require "stan_environment.rkt")
 (require "stan_metafunctions.rkt")
@@ -13,14 +14,21 @@
    (--> [(in-hole E (i C x)) σ]
         [(in-hole E skip) (env->createVar σ x 0 C i)] 
         assign-int)
+   
    ; create real
    (--> [(in-hole E (r C x)) σ]
         [(in-hole E skip) (env->createVar σ x 0.0 C r)]
         assign-real)
+   
    ; create vector
    (--> [(in-hole E (vec-type int C x)) σ]
         [(in-hole E skip) (env->createVar σ x (vector->init int) C vec-type)]
         assign-vec)
+
+   ; create a matrix
+   (--> [(in-hole E (mat-type int_1 int_2 C x)) σ]
+        [(in-hole E skip) (env->createVar σ x (matrix->init int_1 int_2) C mat-type)]
+        assign-matrix)
 
    ; update variable value for a number
    (--> [(in-hole E (x = pv)) σ]

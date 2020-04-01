@@ -33,6 +33,7 @@
      (i C x)
      (r C x)
      (vec-type int C x)
+     (mat-type int int C x)
      (x = e)
      (x [ e ] = e)
      (x [ e e] = e) 
@@ -53,11 +54,11 @@
 
   ;; matrix, note that alwaysone is not in stan but is a stand in for more
   ;; complicated constraints that don't get at what we are trying to understand.
-  (mat-types ::= m alwaysone) 
+  (mat-type ::= m alwaysone) 
   (mat ::= (vec ...))
 
     ;; types
-  (t ::= i r vec-type mat-types)
+  (t ::= i r vec-type mat-type)
 
   ;; Values
   (V ::= pv vec mat)

@@ -31,6 +31,16 @@
  ct5
  (term (((skip skip) "cannot create variable that already exists"))))
 
+(define ct6 (term (stan->run ((m 3 2 ((none)) x)))))
+(test-equal
+ (term (meta->getEnvironment ,ct6))
+ (term ((x ((0.0 0.0 0.0) (0.0 0.0 0.0)) ((none)) m))))
+
+(define ct7 (term (stan->run ((alwaysone 1 2 ((none)) x)))))
+(test-equal
+ (term (meta->getEnvironment ,ct7))
+ (term ((x ((0.0) (0.0)) ((none)) alwaysone))))
+
 ;; update variable tests
 (define gt1 (term (stan->run ((i ((none)) x) (x = 4)))))
 (test-equal

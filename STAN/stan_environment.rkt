@@ -145,6 +145,41 @@
      (term (vector->size (env->getValue σ x))))))]
   [(env->updateVector σ x vec) (env->updateVar σ x vec)])
 
+;; update matrix vector value
+;; update matrix vector
+;; update matrix
+(define-metafunction STAN_E
+  env->updateMatrix : σ x mat -> σ or
+  "variable not found" or 
+  "matrix can only be assigned to variable of type matrix" or
+  "size cannot change on updating matrix variable"
+  ; size check
+  [(env->updateMatrix σ x mat)
+   "variable not found"
+   (side-condition (not (term (variableExists σ x))))]
+  ; type check
+  [(env->updateMatrix σ x mat)
+   "matrix can only be assigned to variable of type matrix"
+   (side-condition
+    (not
+     (or
+      (eqv? (term (env->getType σ x)) (term m))
+      (eqv? (term (env->getType σ x)) (term onlyones)))))]
+  ; size check and run on success
+  [(env->updateMatrix σ x mat)
+   (env->updateVar σ x mat)
+   (side-condition
+    (and
+     (eqv?
+      (term (matrix->numRows mat))
+      (term (matrix->numRows (env->getValue σ x))))
+     (eqv?
+      (term (matrix->numCols mat))
+      (term (matrix->numCols (env->getValue σ x))))))]
+  ; else return error
+  [(env->updateMatrix σ x mat)
+   "size cannot change on updating matrix variable"])
+
 ;; exports
 (provide STAN_E)
 (provide env->getValue)
@@ -155,3 +190,4 @@
 (provide env->updateNumber)
 (provide env->updateVectorValue)
 (provide env->updateVector)
+(provide env->updateMatrix)

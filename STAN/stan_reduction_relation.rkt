@@ -75,7 +75,7 @@
         [(in-hole E (matrix->getVector mat int)) σ]
         index-matrix)
 
-   ;; get matrix value
+   ;; double index a matrix
    (--> [(in-hole E (mat < int_1 int_2 >)) σ]
         [(in-hole E (matrix->getValue mat int_1 int_2)) σ]
         double-index-matrix)

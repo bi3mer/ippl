@@ -141,7 +141,6 @@
  umvvt3
  (term (((skip skip) "y index out of bounds"))))
 
-
 ;; get value tests
 (define gvt (term (stan->run ((r ((none)) x) (x = 3.0) (r ((none)) y) (y = x)))))
 (test-equal
@@ -160,6 +159,16 @@
 (test-equal
  (apply-reduction-relation* stan_r (term (((v 4 ((none)) x) (x < 1 > = (x < 0 >))) () )))
  (term (((skip (x < 1 > = "index out of bounds")) ((x (0.0 0.0 0.0 0.0) ((none)) v))))))
+
+(define gvt3 (term (stan->run ((m 2 2 ((none)) x) (x < 1 1 > = 3.0) (r ((none)) y) (y = (x < 1 1 >))))))
+(test-equal
+ (term (meta->getEnvironment ,gvt3))
+ (term ((y 3.0 ((none)) r) (x ((3.0 0.0) (0.0 0.0)) ((none)) m))))
+
+(define gvt4 (term (stan->run ((m 2 2 ((none)) x) (x < 2 > = (1.0 1.0)) (v 2 ((none)) y) (y = (x < 2 >))))))
+(test-equal
+ (term (meta->getEnvironment ,gvt4))
+ (term ((y (1.0 1.0) ((none)) v) (x ((0.0 0.0) (1.0 1.0)) ((none)) m))))
 
 ;; math tests
 (define mt (term (stan->run ((r ((none)) x) (x = (3.0 + 3.1)))) ))

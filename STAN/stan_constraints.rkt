@@ -22,11 +22,11 @@
    ,(cons
      (term (x "upper constraint not met"))
      (term (validateNumberConstraints x EV (IC_rest ...))))]
-  ;; lower constraint when side condition for upper met
+  ;; lower constraint when side condition for lower met
   [(validateNumberConstraints x EV ((lower = pv) IC_rest ...))
    ,(cons (term (x "no error")) (term (validateNumberConstraints x EV (IC_rest ...))))
    (side-condition (> (term EV) (term pv)))]
-  ;; lower constraint when side condition for upper is not met
+  ;; lower constraint when side condition for lower is not met
   [(validateNumberConstraints x EV ((lower = pv) IC_rest ...))
    ,(cons
      (term (x "lower constraint not met"))

@@ -1,17 +1,6 @@
 #lang racket
 (require redex)
 
-;; TODO: vector
-;; TODO: matrix
-;; TODO: array
-;; TODO: test vector bounding
-;; TODO: test matrix bounding
-;; TODO: test array bounding
-;; TODO: arithmetic operations
-;; TODO: int to r but not r to int
-;; TODO: for loop
-;; TODO: if test
-
 ;; NOTES:
 ;; - the current approach for restrictions does allow a user to create multiple
 ;;   restrictions of the same type for a variable. For example, there is

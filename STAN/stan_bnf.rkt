@@ -42,7 +42,7 @@
 
   (ss ::= skip (skip ...))
   
-  ;; primative values
+  ;; primitive values
   (error ::= string)
   (int ::= integer)
   (num ::= number)

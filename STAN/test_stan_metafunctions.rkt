@@ -5,6 +5,7 @@
 
 ;; test meta->mathOperation
 ; addition
+(test-equal (term (meta->mathOperation 0 + 0)) (term 0))
 (test-equal (term (meta->mathOperation 3 + 2)) (term 5))
 (test-equal (term (meta->mathOperation 3.12 + 2)) (term 5.12))
 

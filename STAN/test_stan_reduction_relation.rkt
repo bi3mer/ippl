@@ -198,6 +198,9 @@
 (define mt7 (term (stan->run ((r ((none)) x) (x = (2.0 ^ (3.0 - 1.0))))) ))
 (test-equal (term (meta->getEnvironment ,mt7)) (term ((x 4.0 ((none)) r))))
 
+(define mt8 (term (stan->run ((i ((none)) x) (x = (0 + 0)))) ))
+(test-equal (term (meta->getEnvironment ,mt8)) (term ((x 0 ((none)) i))))
+
 ;; vector math tests
 (define vmt
   (term (stan->run ((v 4 ((none)) x)
@@ -259,6 +262,14 @@
 (test-equal
  (term (meta->getEnvironment ,for2_run))
  (term ((y 55 ((none)) i) (x 11 ((none)) i))))
+
+(apply-reduction-relation* stan_r (term (((i ((none)) x) (i ((none)) y) (for x in 1 : 10 do ((y = (y + x)) (y = (y + 1))))) ())))
+;(traces stan_r (term (((i ((none)) x) (i ((none)) y) (for x in 1 : 10 do ((y = (y + x)) (y = (y + 1))))) ())))
+(define for3 (term ((i ((none)) x) (i ((none)) y) (for x in 1 : 10 do ((y = (y + x)) (y = (y + 1)))))))
+(define for3_run (term (stan->run ,for3)))
+(test-equal
+ (term (meta->getEnvironment ,for3_run))
+ (term ((y 65 ((none)) i) (x 11 ((none)) i))))
 
 (test-results)
 

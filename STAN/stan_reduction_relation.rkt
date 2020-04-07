@@ -62,8 +62,8 @@
    
    ; get a variable
    (--> [(in-hole E x) σ]
-       [(in-hole E (env->getValue σ x)) σ]
-       get-value)
+        [(in-hole E (env->getValue σ x)) σ]
+        get-value)
 
    ;; index a vector
    (--> [(in-hole E (vec < int >)) σ]

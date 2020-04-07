@@ -22,14 +22,14 @@
 ;;   assigned.
 ;; - syntax simplified for <><> case to be < number ... > to simplify the AST to
 ;;   be more manageable.
-;; - for now, removing matrix
-;; - for now, removing array
+;; - Arrays not implemened
 
 ;;;; Stan language
 (define-language STAN
   (e ::= pv bool x (e ...) (e < e >) (e < e e >) (e MO e) (e AMO e) (e MBO e) (- e)) ;; 
   (s ::=
-     skip
+     ss
+     (s ...)
      (i C x)
      (r C x)
      (vec-type int C x)
@@ -37,9 +37,10 @@
      (x = e)
      (x < e > = e)
      (x < e e > = e) 
-     (s ...)
      (if e then s else s)
-     (for x in e : e do s)) ;;  ((for x in e) s) 
+     (for x in e : e do s)) 
+
+  (ss ::= skip (skip ...))
   
   ;; primative values
   (error ::= string)
@@ -86,7 +87,7 @@
   ;; Operation Semantics
   (E ::=
      hole
-     (skip ... E s ...)
+     (ss ... E s ...)
      
      ;; assignments
      (x = E) 
@@ -104,7 +105,6 @@
 
      (x < E e > = e)
      (x < int E > = e)
-     (x < int int > = E)
 
      ; getting
      (E < e >)
